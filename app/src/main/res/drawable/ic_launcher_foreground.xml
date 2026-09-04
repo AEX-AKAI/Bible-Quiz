@@ -1,0 +1,46 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Open Book base shape -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M26,38 C26,35 32,33 52,35 L52,73 C34,71 28,73 26,75 Z" />
+    <path
+        android:fillColor="#E2E8F0"
+        android:pathData="M82,38 C82,35 76,33 56,35 L56,73 C74,71 80,73 82,75 Z" />
+    <!-- Book spine / spine shadow -->
+    <path
+        android:fillColor="#CBD5E1"
+        android:pathData="M52,35 L56,35 L56,73 L52,73 Z" />
+    <!-- Book text lines (left page) -->
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M31,43 L47,43 A1,1 0 0,1 47,45 L31,45 A1,1 0 0,1 31,43 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M31,49 L47,49 A1,1 0 0,1 47,51 L31,51 A1,1 0 0,1 31,49 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M31,55 L43,55 A1,1 0 0,1 43,57 L31,57 A1,1 0 0,1 31,55 Z" />
+    <!-- Book text lines (right page) -->
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M61,43 L77,43 A1,1 0 0,1 77,45 L61,45 A1,1 0 0,1 61,43 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M61,49 L77,49 A1,1 0 0,1 77,51 L61,51 A1,1 0 0,1 61,49 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M65,55 L77,55 A1,1 0 0,1 77,57 L65,57 A1,1 0 0,1 65,55 Z" />
+    <!-- Golden Lightning bolt symbolizing speed combo -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M57,26 L42,48 L53,48 L46,74 L68,44 L55,44 Z" />
+    <!-- Lightning highlight -->
+    <path
+        android:fillColor="#FEF08A"
+        android:pathData="M55,30 L45,46 L53,46 L50,62 L62,45 L54,45 Z" />
+</vector>

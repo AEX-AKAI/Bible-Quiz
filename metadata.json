@@ -1,0 +1,6 @@
+{
+  "name": "Bible Quiz",
+  "description": "Competitive Bible Quiz challenge system with unlimited timed questions, speed bonus, and combo scoring.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
