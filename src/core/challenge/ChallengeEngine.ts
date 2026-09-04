@@ -4,6 +4,7 @@ import { CrossPlatformTimer, TimerState } from '../timer/CrossPlatformTimer';
 import { ScoringEngine } from '../scoring/ScoringEngine';
 import { QuestionScoreResult } from '../types';
 import { ServerScoringValidator } from './ServerScoringValidator';
+import { StorageService } from '../../platform/storage/StorageService';
 
 export interface ChallengeEngineEvents {
   onQuestionChanged: (question: Question, index: number, total: number) => void;
@@ -12,9 +13,12 @@ export interface ChallengeEngineEvents {
   onChallengeComplete: (result: ChallengeResult) => void;
 }
 
+export type QuestionProvider = (sequenceIndex: number) => Question;
+
 export class ChallengeEngine {
   public readonly config: ChallengeConfig;
   private readonly questions: Question[];
+  private readonly questionProvider?: QuestionProvider;
   private readonly timer: CrossPlatformTimer;
   private readonly validator: ServerScoringValidator;
   private readonly events: ChallengeEngineEvents;
@@ -27,18 +31,38 @@ export class ChallengeEngine {
 
   constructor(
     config: ChallengeConfig,
-    questions: Question[],
+    initialQuestions: Question[],
     playerName: string,
-    events: ChallengeEngineEvents
+    events: ChallengeEngineEvents,
+    questionProvider?: QuestionProvider
   ) {
     this.config = config;
-    this.questions = questions;
+    this.questions = [...initialQuestions];
+    this.questionProvider = questionProvider;
     this.playerName = playerName;
     this.events = events;
 
     const now = Date.now();
     const end = now + config.timeLimitSeconds * 1000;
-    this.validator = new ServerScoringValidator(config.challengeId, now, end, questions);
+
+    // The validator accesses questions by index; dynamic expansion is supported
+    this.validator = new ServerScoringValidator(
+      config.challengeId,
+      now,
+      end,
+      (pos: number) => {
+        if (pos < this.questions.length) {
+          return this.questions[pos];
+        }
+        if (this.questionProvider) {
+          const generated = this.questionProvider(pos + 1);
+          this.questions[pos] = generated;
+          return generated;
+        }
+        return null;
+      }
+    );
+
     this.timer = new CrossPlatformTimer(config.timeLimitSeconds);
   }
 
@@ -60,6 +84,14 @@ export class ChallengeEngine {
   }
 
   private presentCurrentQuestion() {
+    if (this.isFinished) return;
+
+    // If beyond current questions array, fetch from dynamic question provider
+    if (this.currentIndex >= this.questions.length && this.questionProvider) {
+      const nextQ = this.questionProvider(this.currentIndex + 1);
+      this.questions.push(nextQ);
+    }
+
     if (this.currentIndex >= this.questions.length) {
       this.finishChallenge();
       return;
@@ -67,7 +99,7 @@ export class ChallengeEngine {
 
     this.questionStartTime = performance.now();
     const currentQ = this.questions[this.currentIndex];
-    this.events.onQuestionChanged(currentQ, this.currentIndex, this.questions.length);
+    this.events.onQuestionChanged(currentQ, this.currentIndex, Math.max(this.questions.length, this.currentIndex + 1));
   }
 
   public submitAnswer(selectedOption: string): QuestionScoreResult | null {
@@ -110,6 +142,7 @@ export class ChallengeEngine {
 
     const review: AnswerReviewItem = {
       questionNumber: this.currentIndex + 1,
+      questionId: currentQ.questionId,
       questionText: currentQ.question,
       options: currentQ.options,
       selectedAnswer: selectedOption,
@@ -128,18 +161,13 @@ export class ChallengeEngine {
     this.events.onAnswerFeedback(scoreResult, isSpeedBonus);
 
     this.currentIndex += 1;
-    // Advance to next question
-    if (this.currentIndex < this.questions.length) {
-      setTimeout(() => {
-        if (!this.isFinished) {
-          this.presentCurrentQuestion();
-        }
-      }, 350);
-    } else {
-      setTimeout(() => {
-        this.finishChallenge();
-      }, 350);
-    }
+
+    // Advance to next question (or generate next question if streaming)
+    setTimeout(() => {
+      if (!this.isFinished) {
+        this.presentCurrentQuestion();
+      }
+    }, 320);
 
     return scoreResult;
   }
@@ -148,6 +176,14 @@ export class ChallengeEngine {
     if (this.isFinished) return;
     this.isFinished = true;
     this.timer.stop();
+
+    // Record seen question IDs in session storage history
+    const seenIds = this.answerReviews.map((r) => r.questionId).filter(Boolean) as string[];
+    if (seenIds.length > 0) {
+      StorageService.getInstance().recordSeenQuestionIds(seenIds).catch(() => {
+        // silent catch
+      });
+    }
 
     const result: ChallengeResult = {
       resultId: `res-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,

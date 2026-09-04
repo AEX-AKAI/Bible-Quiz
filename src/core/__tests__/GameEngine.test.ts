@@ -147,4 +147,46 @@ describe('Shared Game Engine: ServerScoringValidator Anti-Cheat', () => {
       expect(result2.reason).toBe('REPLAY_DETECTED');
     }
   });
+
+  it('validates streamed questions dynamically without pre-fixed arrays', () => {
+    const dynamicProvider = (pos: number): Question | null => {
+      return {
+        questionId: `DYN_${pos}`,
+        question: `Dynamic Scripture Question #${pos}`,
+        options: ['Ans A', 'Ans B', 'Ans C', 'Ans D'],
+        correctAnswer: 'Ans B',
+        difficulty: 'MEDIUM',
+        category: 'GOSPELS',
+        questionType: 'TEXT',
+        book: 'John',
+        chapter: 3,
+        verse: 16,
+        explanation: 'For God so loved the world.',
+      };
+    };
+
+    const validator = new ServerScoringValidator(
+      'STREAM_CH',
+      Date.now(),
+      Date.now() + 60000,
+      dynamicProvider
+    );
+
+    const event5: AnswerSubmissionEvent = {
+      eventId: 'evt_dynamic_5',
+      challengeId: 'STREAM_CH',
+      questionId: 'DYN_5',
+      sequencePosition: 5,
+      selectedAnswer: 'Ans B',
+      responseTimeMs: 1500,
+      clientTimestamp: Date.now(),
+    };
+
+    const result = validator.validateAndScore(event5);
+    expect(result.status).toBe('VALID');
+    if (result.status === 'VALID') {
+      expect(result.scoreResult.isCorrect).toBe(true);
+      expect(result.scoreResult.baseScore).toBe(10);
+    }
+  });
 });

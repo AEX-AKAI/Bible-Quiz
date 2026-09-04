@@ -355,6 +355,106 @@ export class WebAudioEngine {
     osc.stop(now + 0.6);
   }
 
+  public playActionSound() {
+    if (!this.settings.masterAudioEnabled || !this.settings.soundEffectsEnabled) return;
+    this.ensureUnlocked();
+    if (!this.ctx || !this.sfxGain) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(540, now + 0.08);
+
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.12);
+  }
+
+  public playTabSound() {
+    if (!this.settings.masterAudioEnabled || !this.settings.soundEffectsEnabled) return;
+    this.ensureUnlocked();
+    if (!this.ctx || !this.sfxGain) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(680, now);
+    osc.frequency.exponentialRampToValueAtTime(420, now + 0.04);
+
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+    osc.connect(gain);
+    gain.connect(this.sfxGain);
+    osc.start(now);
+    osc.stop(now + 0.04);
+  }
+
+  public playDifficultyIncrease() {
+    if (!this.settings.masterAudioEnabled || !this.settings.soundEffectsEnabled) return;
+    this.ensureUnlocked();
+    if (!this.ctx || !this.sfxGain) return;
+
+    const now = this.ctx.currentTime;
+    // Ascending brass herald: G4 (392Hz), C5 (523Hz), E5 (659Hz), G5 (784Hz)
+    const notes = [392.00, 523.25, 659.25, 783.99];
+
+    notes.forEach((freq, idx) => {
+      const noteTime = now + idx * 0.06;
+      const osc = this.ctx!.createOscillator();
+      const gain = this.ctx!.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, noteTime);
+
+      gain.gain.setValueAtTime(0.001, noteTime);
+      gain.gain.linearRampToValueAtTime(0.26, noteTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.28);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain!);
+      osc.start(noteTime);
+      osc.stop(noteTime + 0.28);
+    });
+  }
+
+  public playDefeatSound() {
+    if (!this.settings.masterAudioEnabled || !this.settings.soundEffectsEnabled) return;
+    this.ensureUnlocked();
+    if (!this.ctx || !this.sfxGain) return;
+
+    const now = this.ctx.currentTime;
+    // Gentle contemplative descending tones: F4 (349Hz), D4 (293Hz), A3 (220Hz)
+    const notes = [349.23, 293.66, 220.00];
+
+    notes.forEach((freq, idx) => {
+      const noteTime = now + idx * 0.12;
+      const osc = this.ctx!.createOscillator();
+      const gain = this.ctx!.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, noteTime);
+
+      gain.gain.setValueAtTime(0.001, noteTime);
+      gain.gain.linearRampToValueAtTime(0.2, noteTime + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.45);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain!);
+      osc.start(noteTime);
+      osc.stop(noteTime + 0.45);
+    });
+  }
+
   public playVictoryFanfare() {
     if (!this.settings.masterAudioEnabled || !this.settings.soundEffectsEnabled) return;
     this.ensureUnlocked();

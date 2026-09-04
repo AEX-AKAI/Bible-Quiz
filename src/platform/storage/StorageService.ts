@@ -84,4 +84,18 @@ export class StorageService {
     const all = await this.db.getAll<ChallengeResult>('results');
     return all.sort((a, b) => b.timestamp - a.timestamp).slice(0, 20);
   }
+
+  public async getRecentQuestionIds(): Promise<string[]> {
+    await this.init();
+    const ids = await this.db.get<string[]>('kv', 'recent_question_ids');
+    return ids || [];
+  }
+
+  public async recordSeenQuestionIds(newIds: string[], maxHistory: number = 500): Promise<void> {
+    await this.init();
+    const current = await this.getRecentQuestionIds();
+    const combined = [...newIds, ...current.filter((id) => !newIds.includes(id))];
+    const trimmed = combined.slice(0, maxHistory);
+    await this.db.set('kv', 'recent_question_ids', trimmed);
+  }
 }

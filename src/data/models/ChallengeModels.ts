@@ -22,6 +22,7 @@ export interface AnswerSubmissionEvent {
 
 export interface AnswerReviewItem {
   questionNumber: number;
+  questionId?: string;
   questionText: string;
   options: string[];
   selectedAnswer: string;

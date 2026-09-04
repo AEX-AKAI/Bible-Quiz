@@ -61,6 +61,17 @@ export const App: React.FC = () => {
     init();
   }, []);
 
+  // Synchronize visual theme mode with root DOM element
+  useEffect(() => {
+    if (settings.darkMode) {
+      document.documentElement.classList.add('theme-dark');
+      document.documentElement.classList.remove('theme-light');
+    } else {
+      document.documentElement.classList.add('theme-light');
+      document.documentElement.classList.remove('theme-dark');
+    }
+  }, [settings.darkMode]);
+
   // Update Settings handler
   const handleUpdateSettings = async (newSettings: AppSettings) => {
     setSettings(newSettings);
@@ -95,10 +106,18 @@ export const App: React.FC = () => {
   };
 
   // View Leaderboard
-  const handleViewLeaderboard = () => {
-    if (!activeConfig) return;
+  const handleViewLeaderboard = (customConfig?: ChallengeConfig) => {
+    const targetConfig = customConfig || activeConfig || {
+      challengeId: 'GRACE24',
+      seed: 'GRACE24',
+      timeLimitSeconds: 180,
+      difficulty: 'MIXED',
+      isOnline: true,
+      totalQuestions: 35,
+    };
+    setActiveConfig(targetConfig);
     const entries = OnlineChallengeService.getInstance().generateLobbyCompetitors(
-      activeConfig,
+      targetConfig,
       lastResult || undefined
     );
     setLeaderboardEntries(entries);
@@ -119,13 +138,16 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col w-full h-full bg-slate-950 text-slate-100 font-sans overflow-hidden">
+    <div className={`flex-1 flex flex-col w-full h-full font-sans overflow-hidden transition-colors duration-200 ${
+      settings.darkMode ? 'theme-dark bg-[#080D1A] text-slate-100' : 'theme-light bg-[#FAF7F0] text-stone-900'
+    }`}>
       {view === 'LOBBY' && (
         <LobbyView
           userProfile={userProfile}
           settings={settings}
           networkStatus={networkStatus}
           onStartChallenge={handleStartChallenge}
+          onViewLeaderboard={(config) => handleViewLeaderboard(config)}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenProfile={() => setIsProfileOpen(true)}
         />
@@ -153,7 +175,7 @@ export const App: React.FC = () => {
               });
             }
           }}
-          onViewLeaderboard={handleViewLeaderboard}
+          onViewLeaderboard={() => handleViewLeaderboard()}
           onHome={() => setView('LOBBY')}
         />
       )}
@@ -162,7 +184,7 @@ export const App: React.FC = () => {
         <LeaderboardView
           entries={leaderboardEntries}
           challengeId={activeConfig.challengeId}
-          onBack={() => setView('RESULTS')}
+          onBack={() => setView(lastResult ? 'RESULTS' : 'LOBBY')}
         />
       )}
 

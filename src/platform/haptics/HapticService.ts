@@ -33,6 +33,21 @@ export class HapticService {
     getPlatformService().vibrateNotification('success');
   }
 
+  public comboMilestone() {
+    if (!this.isEnabled) return;
+    getPlatformService().vibrateImpact('medium');
+    setTimeout(() => {
+      if (this.isEnabled) {
+        getPlatformService().vibrateImpact('light');
+      }
+    }, 100);
+  }
+
+  public warning() {
+    if (!this.isEnabled) return;
+    getPlatformService().vibrateNotification('warning');
+  }
+
   public error() {
     if (!this.isEnabled) return;
     getPlatformService().vibrateNotification('error');

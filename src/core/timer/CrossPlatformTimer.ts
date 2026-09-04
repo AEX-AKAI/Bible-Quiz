@@ -12,7 +12,7 @@ export class CrossPlatformTimer {
   private onExpireCallback?: () => void;
 
   private isRunning: boolean = false;
-  private intervalId: number | null = null;
+  private intervalId: any = null;
 
   // Server-authoritative timestamps (if online)
   private serverEndTimeMillis: number | null = null;
@@ -42,7 +42,7 @@ export class CrossPlatformTimer {
     this.startPerformanceNow = performance.now();
 
     this.tick();
-    this.intervalId = window.setInterval(() => {
+    this.intervalId = setInterval(() => {
       this.tick();
     }, 200); // 200ms precision loop
   }
@@ -101,7 +101,7 @@ export class CrossPlatformTimer {
     this.isRunning = true;
     this.startPerformanceNow = performance.now();
     this.tick();
-    this.intervalId = window.setInterval(() => {
+    this.intervalId = setInterval(() => {
       this.tick();
     }, 200);
   }

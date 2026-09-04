@@ -19,7 +19,7 @@ export class ServerScoringValidator {
   public readonly challengeId: string;
   public readonly startTimeMillis: number;
   public readonly endTimeMillis: number;
-  private readonly officialSequence: Question[];
+  private readonly officialSequence: Question[] | ((position: number) => Question | null);
 
   private answeredQuestionIds: Set<string> = new Set();
   private processedEventIds: Set<string> = new Set();
@@ -36,7 +36,7 @@ export class ServerScoringValidator {
     challengeId: string,
     startTimeMillis: number,
     endTimeMillis: number,
-    officialSequence: Question[]
+    officialSequence: Question[] | ((position: number) => Question | null)
   ) {
     this.challengeId = challengeId;
     this.startTimeMillis = startTimeMillis;
@@ -65,11 +65,11 @@ export class ServerScoringValidator {
     }
 
     // 4. Sequence mismatch check
-    if (event.sequencePosition < 0 || event.sequencePosition >= this.officialSequence.length) {
-      return { status: 'REJECTED', reason: 'SEQUENCE_MISMATCH' };
-    }
-    const expected = this.officialSequence[event.sequencePosition];
-    if (expected.questionId !== event.questionId) {
+    const expected = typeof this.officialSequence === 'function'
+      ? this.officialSequence(event.sequencePosition)
+      : this.officialSequence[event.sequencePosition];
+
+    if (!expected || expected.questionId !== event.questionId) {
       return { status: 'REJECTED', reason: 'SEQUENCE_MISMATCH' };
     }
 

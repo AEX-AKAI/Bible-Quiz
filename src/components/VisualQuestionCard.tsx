@@ -18,17 +18,17 @@ export const VisualQuestionCard: React.FC<Props> = ({ question }) => {
   const src = question.localAssetPath || question.imageUrl;
 
   return (
-    <div className="relative w-full max-w-lg mx-auto my-2 rounded-2xl overflow-hidden sacred-card shadow-xl border border-amber-500/20">
+    <div className="relative w-full max-w-md mx-auto my-2 rounded-2xl overflow-hidden sacred-card shadow-xl border border-amber-500/20">
       {!isLoaded && !hasError && (
-        <div className="w-full h-48 flex flex-col items-center justify-center bg-slate-900 animate-shimmer text-slate-400 text-xs gap-2">
+        <div className="w-full h-36 sm:h-44 flex flex-col items-center justify-center bg-slate-900 animate-shimmer text-slate-400 text-xs gap-2">
           <div className="w-8 h-8 rounded-full border-2 border-amber-500/30 border-t-amber-400 animate-spin" />
           <span className="font-semibold text-amber-200/80">Loading Scripture Illustration...</span>
         </div>
       )}
 
       {hasError ? (
-        <div className="w-full h-28 flex flex-col items-center justify-center bg-slate-900 text-slate-400 text-xs p-4 text-center">
-          <ImageOff size={24} className="mb-1.5 text-slate-500" />
+        <div className="w-full h-24 flex flex-col items-center justify-center bg-slate-900 text-slate-400 text-xs p-3 text-center">
+          <ImageOff size={22} className="mb-1 text-slate-500" />
           <span className="font-medium">Scripture illustration safely cached offline</span>
         </div>
       ) : (
@@ -37,7 +37,7 @@ export const VisualQuestionCard: React.FC<Props> = ({ question }) => {
           alt={question.imageAltText || 'Biblical question visual reference'}
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
-          className={`w-full max-h-56 object-cover transition-opacity duration-300 ${
+          className={`w-full max-h-36 sm:max-h-48 md:max-h-56 object-cover object-center transition-opacity duration-300 ${
             isLoaded ? 'opacity-100' : 'opacity-0 h-0'
           }`}
           loading="eager"

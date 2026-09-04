@@ -337,13 +337,158 @@ Accessibility features also include **Reduced Animations Mode** (respects system
 
 ---
 
-# 8. Troubleshooting & FAQ
+# 8. UI / UX Design System
+
+The application features a custom, spiritual design language crafted to feel **sacred, premium, modern, and competitive**.
+
+### 1. Dual Theming System
+
+The app supports instant switching between **Celestial Dark** and **Warm Parchment Light** themes via CSS custom variables defined in `src/index.css` and applied to the root element.
+
+| Variable | Celestial Dark (`.theme-dark`) | Warm Parchment Light (`.theme-light`) | Purpose |
+| :--- | :--- | :--- | :--- |
+| `--background` | `#080D1A` (Deep Celestial Navy) | `#FAF7F0` (Warm Ivory Canvas) | Overall app background |
+| `--surface` | `#0F172A` (Midnight Slate) | `#FFFFFF` (Crisp Parchment White) | Top headers & floating sheets |
+| `--surface-card` | `#111C35` (Deep Indigo Tint) | `#F5F0E6` (Soft Cream Parchment) | Primary card containers |
+| `--surface-elevated` | `#1E293B` (Elevated Slate) | `#EDE6D8` (Warm Ivory Accent) | Modals, active states, dialogs |
+| `--text-primary` | `#F8FAFC` (Pure Pearl White) | `#1C1917` (Deep Ink Stone) | High-contrast readable typography |
+| `--text-secondary` | `#CBD5E1` (Soft Silver Slate) | `#44403C` (Warm Charcoal) | Explanations, subtitles, body |
+| `--text-muted` | `#64748B` (Muted Slate) | `#78716C` (Muted Warm Stone) | Timers, meta labels, stats |
+| `--border-card` | `rgba(245, 158, 11, 0.18)` | `rgba(180, 83, 9, 0.22)` | Subtle golden border outlines |
+| `--gold-primary` | `#F59E0B` (Vibrant Golden Amber) | `#D97706` (Rich Antique Gold) | Primary accents, buttons, streaks |
+| `--gold-gradient-start` | `#F59E0B` | `#D97706` | Primary action button gradients |
+| `--gold-gradient-end` | `#B45309` | `#92400E` | High-contrast golden depth |
+
+### 2. Typography Hierarchy
+
+- **Display Headings**: Classical serif / display styling (`Cinzel` with fallback to serif) with generous tracking for badges, crowns, and titles.
+- **Body & Scriptural Questions**: Clean, highly legible sans-serif (`Plus Jakarta Sans` / system-ui) optimized for rapid reading under time pressure.
+- **Numbers, Timers & Seeds**: Tabular monospace numerals (`JetBrains Mono`, `ui-monospace`) ensuring timer countdowns and score changes do not shift the layout.
+- **Visual Hierarchy**: Question text is given maximum visual weight in the center; answer options provide 4 distinct targets below; reference hints are anchored at the bottom.
+
+### 3. Layout Architecture
+
+- **Single-Screen Focal Experience**: The gameplay view occupies a fixed-height, single-screen layout with zero accidental vertical scroll during rapid tapping.
+- **Persistent Bottom Hint Container**: The Scripture reference hint container is anchored at the bottom of the screen. It expands smoothly without displacing the answer options or cluttering the question area.
+- **Navigation Controls**:
+  - **Desktop / Tablet**: Clean header navigation tabs (**Home**, **Modes**, **Standings**, **Profile**, **Settings**).
+  - **Mobile**: Ergonomic bottom navigation bar with thumb-accessible touch targets (minimum 48dp).
+
+---
+
+# 9. Audio & Haptic System
+
+The application features a complete procedural sound engine built with the browser's native **Web Audio API**. It requires zero external MP3 or audio asset downloads, works 100% offline, and introduces zero network latency.
+
+### 1. Dynamic Ambient Soundscape
+
+- **Continuous Synthesizer**: Uses twin detuned oscillators (warm root and pure fifth) routed through a resonant low-pass biquad filter.
+- **Adaptive Filter Modes**:
+  - `NORMAL`: Soft contemplative warmth (filter cutoff at 220 Hz).
+  - `HIGH_COMBO`: Shimmering harmonic resonance (cutoff shifts to 550 Hz on streaks $\ge$ 5x).
+  - `URGENCY`: Tense, heightened pulse (cutoff shifts to 780 Hz when timer is under 10 seconds).
+
+### 2. Procedural Sound Effects (SFX)
+
+| Sound Cue | Audio Characteristics | Trigger Event |
+| :--- | :--- | :--- |
+| `playActionSound` | Dual-tone resonant arpeggio (440Hz -> 880Hz) | Play Now, launch match, primary buttons |
+| `playButtonTap` | High, crisp micro-click (1200Hz, 15ms) | Mode select, dialogs, checkboxes |
+| `playTabSound` | Soft tactile chime (700Hz -> 850Hz) | Switching navigation tabs or review accordions |
+| `playCorrectAnswer` | Harmonious sine chime (523Hz -> 659Hz, C5 to E5) | Selecting the correct answer option |
+| `playIncorrectAnswer` | Low muted square wave tone (160Hz -> 120Hz) | Selecting an incorrect answer option |
+| `playSpeedBonus` | Rapid upward harmonic shimmer | Answering correctly within 5.0 seconds |
+| `playComboStreak` | Melodic multi-tier fanfares (scaled with streak level) | Achieving streaks at 3x, 5x, 8x, and 10x+ |
+| `playDifficultyIncrease`| Resonant upward brass-bell sweep | Question tier transitions (e.g. Medium -> Hard) |
+| `playTimerWarning` | Crisp wooden tick | Timer countdown at 5, 4, 3, 2, and 1 seconds |
+| `playHintReveal` | Ethereal bell tone with slow envelope decay | Expanding Scripture reference hint |
+| `playVictoryFanfare` | Grand major chord arpeggio with celebratory finish | Completing a challenge with $\ge$ 70% accuracy |
+| `playDefeatSound` | Gentle solemn resolution chord | Completing a challenge with < 50% accuracy |
+
+### 3. Tactile Haptic Feedback
+
+On Android and iOS devices, tactile feedback is delivered natively via `@capacitor/haptics` with automated fallback to the HTML5 Vibration API (`navigator.vibrate`):
+
+- **Light Impact (8ms)**: Option selection, toggle switches, and card selections.
+- **Medium Impact (15ms)**: Launching a round, opening modals, seed generation.
+- **Success Notification (40ms)**: Correct answer feedback.
+- **Error Warning (Double-burst: 50ms, 40ms pause, 50ms)**: Incorrect answer feedback.
+- **Combo Milestone (Triple-burst: 20ms, 30ms, 40ms)**: Crossing 3x, 5x, and 10x streak thresholds.
+- **Timer Warning (25ms pulse)**: Fired in tandem with timer warnings during the final 5 seconds.
+
+---
+
+# 10. Visual Effects & Animations
+
+All visual animations are hardware-accelerated using CSS keyframe transitions and GPU-accelerated transforms:
+
+- `scorePulse`: Triggers an instantaneous pop and scale effect on the score badge when points are awarded.
+- `comboFlare`: Illuminates a radiant golden ambient ring when streak milestones are achieved.
+- `difficultyPulse`: Displays a sleek transition banner and pulsing badge when question difficulty elevates.
+- `shimmer`: Linear gradient travel across sacred cards and selected options.
+- `timerUrgency`: Flashes a high-contrast amber/rose border when the clock enters the 10-second urgency window.
+- **Confetti Celebration**: Fires a physics-based particle burst on the Results screen when achieving victory ($\ge$ 70% score).
+- **Reduced Animations Mode**: Automatically honors the user's OS preference (`prefers-reduced-motion`) and provides a manual toggle in Settings to disable heavy transforms on low-power devices.
+
+---
+
+# 11. Responsive Design & Ergonomics
+
+The application is engineered mobile-first while expanding gracefully to tablets, foldables, and desktop displays:
+
+### 1. Mobile Handhelds (< 640px)
+- Thumb-friendly navigation via a fixed bottom navigation bar.
+- Stacked 4-option cards with large vertical touch areas (minimum height 52px).
+- Anchored bottom hint container to prevent thumb obstruction.
+- Compact duration mode picker with clean icon headers.
+
+### 2. Tablets & Foldables (640px – 1024px)
+- Automatic layout widening with a maximum readable width constraint (`max-w-2xl` and `max-w-3xl`).
+- 3-column mode grid with expanded difficulty descriptors.
+- Side-by-side metric badges on the Results screen.
+
+### 3. Desktop (> 1024px)
+- Fixed top navigation header with instant tab transitions.
+- Full keyboard hotkeys (`1`–`4`, `A`–`D`, `Space`, `H`, `Esc`, `Enter`).
+- Hover states with luminous amber borders (`sacred-card-interactive`).
+- Centered, high-contrast modal dialogs with backdrop blur.
+
+---
+
+# 12. Settings & Configuration
+
+Players can customize their gameplay experience via the Settings dialog:
+
+- **Theme Mode**: Instant toggle between Celestial Dark and Warm Parchment Light.
+- **Sound Effects Volume**: Continuous slider (0% to 100%) and master toggle.
+- **Ambient Music Volume**: Continuous slider (0% to 100%) and master toggle.
+- **Haptic Feedback**: Enable or disable device vibrations.
+- **Reduced Animations**: Disables canvas confetti, pulse loops, and heavy transforms.
+- **Player Profile**: Allows players to set their custom display name and avatar, persisted locally.
+
+---
+
+# 13. Changelog
+
+### 2026-09-04 — Visual & UX Polish Overhaul
+- **Dual Theming Architecture**: Implemented full Light Mode ("Warm Parchment Ivory") alongside Celestial Dark mode, synchronized with CSS variables across all views.
+- **Audio Synthesis Expansion**: Added procedural sound effects for tab navigation (`playTabSound`), challenge launches (`playActionSound`), difficulty tier shifts (`playDifficultyIncrease`), defeat chords (`playDefeatSound`), and timer warnings (`playTimerWarning`).
+- **Tactile Haptic Updates**: Added multi-pulse vibration patterns for combo milestones and final 5-second countdown warnings.
+- **Universal Navigation Bar**: Added desktop navigation header and mobile bottom navigation bar with seamless access to Home, Challenge Modes, Standings, Profile, and Settings.
+- **Leaderboard Integration**: Enabled direct standings viewing from the lobby, game view, and results screen.
+- **Difficulty Transition Indicators**: Added animated banners and sound cues when questions transition between difficulty tiers (Easy $\rightarrow$ Medium $\rightarrow$ Hard $\rightarrow$ Expert).
+- **Option Ergonomics**: Enhanced answer card contrast, keyboard indicators, and anchored bottom hint placement.
+- **Build & Quality Assurance**: Verified 100% build compilation and offline deterministic seed generation.
+
+---
+
+# 14. Troubleshooting & FAQ
 
 **Q: `npm run build` gives a TypeScript error.**  
 A: Ensure your dependencies are completely installed by running `npm install`. Make sure your Node.js version is 18 or 20 (`node --version`).
 
 **Q: The sound or music doesn't play automatically.**  
-A: Modern browsers require a user interaction (like clicking a button or pressing a key) before enabling audio playback. Once you click "Start Challenge" or tap an option, the Web Audio engine unlocks automatically. You can also adjust volume in the **Settings** menu.
+A: Modern browsers require a user interaction (like clicking a button or pressing a key) before enabling audio playback. Once you click "Play Now" or tap an option, the Web Audio engine unlocks automatically. You can also adjust volume in the **Settings** menu.
 
 **Q: How do I test the app completely offline?**  
 A: Open your browser's Developer Tools (F12) -> Network tab -> select "Offline" in the throttling dropdown. The application will continue serving questions and saving results locally using IndexedDB.

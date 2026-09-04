@@ -1,15 +1,24 @@
 /**
- * Robust cross-platform IndexedDB storage wrapper with automatic localStorage fallback.
+ * Robust cross-platform IndexedDB storage wrapper with automatic localStorage and in-memory fallback.
  */
 export class IndexedDBStorage {
   private dbName: string;
   private version: number;
   private db: IDBDatabase | null = null;
   private isAvailable: boolean = true;
+  private memoryFallback: Map<string, string> = new Map();
 
   constructor(dbName: string = 'BibleQuizDB', version: number = 1) {
     this.dbName = dbName;
     this.version = version;
+  }
+
+  private hasLocalStorage(): boolean {
+    try {
+      return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+    } catch {
+      return false;
+    }
   }
 
   public async init(): Promise<void> {
@@ -52,11 +61,18 @@ export class IndexedDBStorage {
   }
 
   public async set<T>(storeName: string, key: string, value: T): Promise<void> {
+    const serialized = JSON.stringify(value);
+    const storageKey = `${storeName}_${key}`;
+
     if (!this.isAvailable || !this.db) {
-      try {
-        localStorage.setItem(`${storeName}_${key}`, JSON.stringify(value));
-      } catch (err) {
-        console.warn('LocalStorage save failed:', err);
+      if (this.hasLocalStorage()) {
+        try {
+          window.localStorage.setItem(storageKey, serialized);
+        } catch {
+          this.memoryFallback.set(storageKey, serialized);
+        }
+      } else {
+        this.memoryFallback.set(storageKey, serialized);
       }
       return;
     }
@@ -70,17 +86,36 @@ export class IndexedDBStorage {
 
         request.onsuccess = () => resolve();
         request.onerror = () => reject(request.error);
-      } catch (err) {
+      } catch {
         // Fallback
-        localStorage.setItem(`${storeName}_${key}`, JSON.stringify(value));
+        if (this.hasLocalStorage()) {
+          try {
+            window.localStorage.setItem(storageKey, serialized);
+          } catch {
+            this.memoryFallback.set(storageKey, serialized);
+          }
+        } else {
+          this.memoryFallback.set(storageKey, serialized);
+        }
         resolve();
       }
     });
   }
 
   public async get<T>(storeName: string, key: string): Promise<T | null> {
+    const storageKey = `${storeName}_${key}`;
+
     if (!this.isAvailable || !this.db) {
-      const item = localStorage.getItem(`${storeName}_${key}`);
+      if (this.hasLocalStorage()) {
+        try {
+          const item = window.localStorage.getItem(storageKey);
+          return item ? JSON.parse(item) : null;
+        } catch {
+          const item = this.memoryFallback.get(storageKey);
+          return item ? JSON.parse(item) : null;
+        }
+      }
+      const item = this.memoryFallback.get(storageKey);
       return item ? JSON.parse(item) : null;
     }
 
@@ -99,12 +134,22 @@ export class IndexedDBStorage {
         };
 
         request.onerror = () => {
-          const item = localStorage.getItem(`${storeName}_${key}`);
-          resolve(item ? JSON.parse(item) : null);
+          if (this.hasLocalStorage()) {
+            const item = window.localStorage.getItem(storageKey);
+            resolve(item ? JSON.parse(item) : null);
+          } else {
+            const item = this.memoryFallback.get(storageKey);
+            resolve(item ? JSON.parse(item) : null);
+          }
         };
       } catch {
-        const item = localStorage.getItem(`${storeName}_${key}`);
-        resolve(item ? JSON.parse(item) : null);
+        if (this.hasLocalStorage()) {
+          const item = window.localStorage.getItem(storageKey);
+          resolve(item ? JSON.parse(item) : null);
+        } else {
+          const item = this.memoryFallback.get(storageKey);
+          resolve(item ? JSON.parse(item) : null);
+        }
       }
     });
   }
@@ -112,10 +157,20 @@ export class IndexedDBStorage {
   public async getAll<T>(storeName: string): Promise<T[]> {
     if (!this.isAvailable || !this.db) {
       const results: T[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith(`${storeName}_`)) {
-          results.push(JSON.parse(localStorage.getItem(k)!));
+      if (this.hasLocalStorage()) {
+        try {
+          for (let i = 0; i < window.localStorage.length; i++) {
+            const k = window.localStorage.key(i);
+            if (k && k.startsWith(`${storeName}_`)) {
+              results.push(JSON.parse(window.localStorage.getItem(k)!));
+            }
+          }
+        } catch {}
+      } else {
+        for (const [k, v] of this.memoryFallback.entries()) {
+          if (k.startsWith(`${storeName}_`)) {
+            results.push(JSON.parse(v));
+          }
         }
       }
       return results;
