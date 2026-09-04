@@ -1,6 +1,6 @@
 {
   "name": "Bible Quiz",
-  "description": "Competitive Bible Quiz challenge system with unlimited timed questions, speed bonus, and combo scoring.",
+  "description": "Cross-platform Bible Quiz application with timed challenges, progressive difficulty, speed bonus, combo multipliers, ambient audio, and offline/online modes for Web, Android, iOS, Windows, macOS, and Linux.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

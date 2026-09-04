@@ -47,7 +47,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import com.example.core.audio.AudioEngine
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.AnswerReviewItem
@@ -78,6 +80,9 @@ fun ResultsScreen(
         }
         return
     }
+
+    val context = LocalContext.current
+    val audioEngine = AudioEngine.getInstance(context)
 
     var selectedTabIndex by remember { mutableIntStateOf(0) } // 0: Overview & Leaderboard, 1: Question Review
     val isTopScore = matchLeaderboard.isNotEmpty() && matchLeaderboard.first().resultId == result.resultId
@@ -389,7 +394,10 @@ fun ResultsScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Button(
-                onClick = onPlayAgainSameSeed,
+                onClick = {
+                    audioEngine.playStartChallenge()
+                    onPlayAgainSameSeed()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -403,7 +411,10 @@ fun ResultsScreen(
             }
 
             Button(
-                onClick = onNewChallenge,
+                onClick = {
+                    audioEngine.playStartChallenge()
+                    onNewChallenge()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)
@@ -417,7 +428,10 @@ fun ResultsScreen(
             }
 
             OutlinedButton(
-                onClick = onBackToLobby,
+                onClick = {
+                    audioEngine.playNavBack()
+                    onBackToLobby()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp)

@@ -46,6 +46,13 @@ data class Question(
     val scriptureReference: String
         get() = "$book $chapter:$verse"
 
+    val hintText: String
+        get() = when {
+            !audioHint.isNullOrBlank() -> audioHint
+            explanation.isNotBlank() -> explanation.substringBefore(".").take(100).trim()
+            else -> "Scripture context: $scriptureReference"
+        }
+
     val readingComplexityEnum: com.example.core.challenge.ReadingComplexity
         get() = if (!readingComplexity.isNullOrBlank()) {
             try {

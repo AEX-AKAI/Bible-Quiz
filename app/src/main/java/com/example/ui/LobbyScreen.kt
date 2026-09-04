@@ -34,6 +34,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.LocalContext
+import com.example.core.audio.AudioEngine
 import com.example.ui.components.SoundSettingsDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -83,6 +85,9 @@ fun LobbyScreen(
     onNavigateExplorer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    val audioEngine = AudioEngine.getInstance(context)
+
     var selectedTimeSeconds by remember { mutableIntStateOf(180) } // default 3 min
     var selectedDifficulty by remember { mutableStateOf(ChallengeDifficulty.MIXED) }
     var isOnlineMode by remember { mutableStateOf(true) }
@@ -195,7 +200,10 @@ fun LobbyScreen(
 
                             // Audio & Haptics Settings Button
                             IconButton(
-                                onClick = { showSoundDialog = true },
+                                onClick = {
+                                    audioEngine.playNavSettings()
+                                    showSoundDialog = true
+                                },
                                 modifier = Modifier
                                     .size(32.dp)
                                     .background(Color.Black.copy(alpha = 0.3f), CircleShape)
@@ -333,7 +341,10 @@ fun LobbyScreen(
                         val isSelected = selectedTimeSeconds == secondsVal
                         FilterChip(
                             selected = isSelected,
-                            onClick = { selectedTimeSeconds = secondsVal },
+                            onClick = {
+                                audioEngine.playButtonTap()
+                                selectedTimeSeconds = secondsVal
+                            },
                             label = { Text(label, fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = MaterialTheme.colorScheme.primary,
@@ -369,7 +380,10 @@ fun LobbyScreen(
                         }
                         FilterChip(
                             selected = isSelected,
-                            onClick = { selectedDifficulty = diff },
+                            onClick = {
+                                audioEngine.playButtonTap()
+                                selectedDifficulty = diff
+                            },
                             label = { Text(label) },
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = MaterialTheme.colorScheme.primary,
@@ -416,6 +430,7 @@ fun LobbyScreen(
                 // Primary Start Button
                 Button(
                     onClick = {
+                        audioEngine.playStartChallenge()
                         val config = ChallengeConfig(
                             timeLimitSeconds = selectedTimeSeconds,
                             difficulty = selectedDifficulty,
@@ -483,6 +498,7 @@ fun LobbyScreen(
                     Button(
                         onClick = {
                             if (joinChallengeId.isNotBlank()) {
+                                audioEngine.playJoinChallenge()
                                 // Deterministic seed from the challenge string ID
                                 val seed = joinChallengeId.hashCode().toLong()
                                 val config = ChallengeConfig(
@@ -514,7 +530,10 @@ fun LobbyScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Button(
-                onClick = onNavigateLeaderboard,
+                onClick = {
+                    audioEngine.playNormalClick()
+                    onNavigateLeaderboard()
+                },
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp)
@@ -538,7 +557,10 @@ fun LobbyScreen(
             }
 
             Button(
-                onClick = onNavigateExplorer,
+                onClick = {
+                    audioEngine.playNormalClick()
+                    onNavigateExplorer()
+                },
                 modifier = Modifier
                     .weight(1f)
                     .height(48.dp)

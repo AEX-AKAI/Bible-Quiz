@@ -43,6 +43,11 @@ class HapticEngine private constructor(context: Context) {
         vibratePattern(longArrayOf(0, 30, 40, 30, 40, 50), intArrayOf(0, 160, 0, 200, 0, 255))
     }
 
+    fun vibrateButtonTap() {
+        if (!isEnabled()) return
+        vibratePattern(longArrayOf(0, 10), intArrayOf(0, 80))
+    }
+
     fun vibrateChallengeCompleted() {
         if (!isEnabled()) return
         vibratePattern(longArrayOf(0, 60, 50, 80), intArrayOf(0, 180, 0, 255))

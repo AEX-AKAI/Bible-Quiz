@@ -1,0 +1,22 @@
+{
+	"appId": "com.aistudio.biblequiz.cpxp",
+	"appName": "Bible Quiz",
+	"webDir": "dist",
+	"bundledWebRuntime": false,
+	"server": {
+		"androidScheme": "https",
+		"cleartext": true
+	},
+	"plugins": {
+		"Haptics": {},
+		"StatusBar": {
+			"style": "DARK",
+			"backgroundColor": "#111827"
+		}
+	},
+	"packageClassList": [
+		"AppPlugin",
+		"HapticsPlugin",
+		"StatusBarPlugin"
+	]
+}

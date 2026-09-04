@@ -1,0 +1,37 @@
+{
+  "name": "Bible Quiz",
+  "short_name": "Bible Quiz",
+  "description": "Cross-Platform Competitive Bible Quiz Challenge with progressive difficulty and audio effects.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#0F172A",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "education", "trivia"],
+  "shortcuts": [
+    {
+      "name": "Quick Quiz (1 min)",
+      "url": "/?time=60",
+      "description": "Start a quick 1-minute challenge"
+    },
+    {
+      "name": "Bible Battle (3 min)",
+      "url": "/?time=180",
+      "description": "Standard 3-minute competitive challenge"
+    }
+  ]
+}

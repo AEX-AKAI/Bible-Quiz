@@ -54,8 +54,9 @@ class MainActivity : ComponentActivity() {
                             }
                             QuizGameScreen(
                                 state = uiState,
-                                onAnswerSelected = { answer -> viewModel.submitAnswer(answer) },
+                                onAnswerSelected = { answer, index -> viewModel.submitAnswer(answer, index) },
                                 onQuitGame = { viewModel.finishChallenge() },
+                                onHintRequested = { viewModel.onHintRequested() },
                                 onClearDifficultyTransition = { viewModel.clearDifficultyTransition() },
                                 modifier = Modifier.padding(innerPadding)
                             )

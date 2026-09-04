@@ -4,6 +4,8 @@ import android.app.Application
 import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.core.audio.AmbientMood
+import com.example.core.audio.AudioEngine
 import com.example.core.audio.GameAudioEngine
 import com.example.core.audio.HapticEngine
 import com.example.core.challenge.AnswerValidationResult
@@ -90,7 +92,7 @@ data class QuizUiState(
 class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: QuizRepository = QuizRepository(AppDatabase.getInstance(application))
-    private val audioEngine: GameAudioEngine = GameAudioEngine.getInstance(application)
+    private val audioEngine: AudioEngine = AudioEngine.getInstance(application)
     private val hapticEngine: HapticEngine = HapticEngine.getInstance(application)
 
     private val _uiState = MutableStateFlow(QuizUiState())
@@ -142,7 +144,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
     fun navigateTo(screen: ScreenState) {
         if (screen == ScreenState.LOBBY) {
-            audioEngine.startAmbientMusic(inQuiz = false)
+            audioEngine.startAmbientSoundscape(inQuiz = false, mood = AmbientMood.NORMAL)
         }
         _uiState.update { it.copy(currentScreen = screen) }
     }
@@ -178,6 +180,9 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             )
 
             questionStartTimeRealtime = SystemClock.elapsedRealtime()
+
+            audioEngine.playChallengeStart()
+            audioEngine.startAmbientSoundscape(inQuiz = true, mood = AmbientMood.NORMAL)
 
             _uiState.update {
                 it.copy(
@@ -216,19 +221,27 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
             var remaining = durationSeconds
-            val total = durationSeconds
-            val warn25 = (total * 0.25).toInt()
-            val warn10 = (total * 0.10).toInt()
 
             while (remaining > 0 && _uiState.value.isTimerActive) {
                 delay(1000L)
                 remaining--
                 _uiState.update { it.copy(timeRemainingSeconds = remaining) }
 
-                if (remaining in 1..5) {
-                    audioEngine.playCountdownTick()
-                } else if (remaining == warn25 || remaining == warn10) {
-                    audioEngine.playTimerWarning()
+                // Refined, non-irritating timer audio
+                when (remaining) {
+                    10 -> {
+                        // Section #8: One subtle warning sound at 10s + Section #2: tension ambient
+                        audioEngine.playTimer10sWarning()
+                        audioEngine.setAmbientMood(AmbientMood.TENSION)
+                    }
+                    in 2..5 -> {
+                        // Section #8: Short countdown sounds (5, 4, 3, 2)
+                        audioEngine.playTimer5sTick()
+                    }
+                    1 -> {
+                        // Section #8: Distinct final beep
+                        audioEngine.playTimerFinalSecond()
+                    }
                 }
             }
             if (_uiState.value.isTimerActive) {
@@ -237,7 +250,12 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun submitAnswer(selectedAnswer: String) {
+    fun onHintRequested() {
+        audioEngine.playHintDiscovery()
+        hapticEngine.vibrateButtonTap()
+    }
+
+    fun submitAnswer(selectedAnswer: String, optionIndex: Int = -1) {
         val state = _uiState.value
         if (!state.isTimerActive || state.timeRemainingSeconds <= 0 || state.isEvaluatingAnswer) return
 
@@ -246,7 +264,12 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         val responseTimeMs = maxOf(nowRealtime - questionStartTimeRealtime, 60L)
         val responseTimeSeconds = responseTimeMs / 1000.0
 
-        audioEngine.playAnswerSelected()
+        // Section #4: Button-specific tap sounds for Options A, B, C, D
+        if (optionIndex in 0..3) {
+            audioEngine.playOptionTap(optionIndex)
+        } else {
+            audioEngine.playAnswerSelected()
+        }
 
         // Anti-cheat authoritative validation
         val event = AnswerSubmissionEvent(
@@ -283,7 +306,7 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
 
-        // Trigger Audio & Haptic Feedback immediately
+        // Trigger Audio & Haptic Feedback immediately (Section #4 & #6)
         if (scoreResult.isCorrect) {
             audioEngine.playCorrect()
             hapticEngine.vibrateCorrect()
@@ -291,15 +314,18 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
                 audioEngine.playSpeedBonus()
                 hapticEngine.vibrateSpeedBonus()
             }
-            if (scoreResult.currentCombo > 0 && scoreResult.currentCombo % 5 == 0) {
-                audioEngine.playComboMilestone(scoreResult.currentCombo)
+            // Combo audio progression: Section #6
+            audioEngine.playCombo(scoreResult.currentCombo)
+            if (scoreResult.currentCombo >= 5) {
+                audioEngine.setAmbientMood(AmbientMood.HIGH_COMBO)
                 hapticEngine.vibrateComboMilestone()
-            } else if (scoreResult.currentCombo > 1) {
-                audioEngine.playCombo(scoreResult.currentCombo)
             }
         } else {
             audioEngine.playIncorrect()
             hapticEngine.vibrateIncorrect()
+            if (state.currentCombo >= 5) {
+                audioEngine.setAmbientMood(AmbientMood.NORMAL)
+            }
         }
 
         // Prepare visual feedback
@@ -400,9 +426,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
     fun finishChallenge() {
         timerJob?.cancel()
-        audioEngine.playChallengeCompleted()
+        audioEngine.fadeOutAmbient(durationMs = 600) {
+            audioEngine.playChallengeCompleted()
+        }
         hapticEngine.vibrateChallengeCompleted()
-        audioEngine.setQuizMusicDucking(false)
 
         val state = _uiState.value
         val totalAnswered = state.correctCount + state.incorrectCount
