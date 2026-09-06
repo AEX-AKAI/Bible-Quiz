@@ -13,11 +13,12 @@ import { OnlineChallengeService, LeaderboardEntry } from './data/api/OnlineChall
 import { LobbyView } from './features/home/LobbyView';
 import { QuizGameView } from './features/quiz/QuizGameView';
 import { ResultsView } from './features/results/ResultsView';
+import { ReviewScriptureView } from './features/results/ReviewScriptureView';
 import { LeaderboardView } from './features/leaderboard/LeaderboardView';
 import { SettingsDialog } from './features/settings/SettingsDialog';
 import { ProfileDialog } from './features/profile/ProfileDialog';
 
-type AppView = 'LOBBY' | 'QUIZ' | 'RESULTS' | 'LEADERBOARD';
+type AppView = 'LOBBY' | 'QUIZ' | 'RESULTS' | 'LEADERBOARD' | 'REVIEW';
 
 export const App: React.FC = () => {
   const [view, setView] = useState<AppView>('LOBBY');
@@ -87,12 +88,51 @@ export const App: React.FC = () => {
     await storage.saveUserProfile(updated);
   };
 
+  // Navigate helper with browser history support
+  const navigateToView = (newView: AppView) => {
+    setView(newView);
+    try {
+      const hash = newView === 'LOBBY' ? '' : `#${newView.toLowerCase()}`;
+      if (window.location.hash !== hash) {
+        window.history.pushState({ view: newView }, '', hash || window.location.pathname);
+      }
+    } catch {
+      // Ignored in non-browser environments
+    }
+  };
+
+  // Browser popstate listener for back/forward buttons
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      const stateView = e.state?.view as AppView | undefined;
+      const hash = window.location.hash.toLowerCase();
+
+      if (stateView === 'REVIEW' || hash === '#review') {
+        if (lastResult) setView('REVIEW');
+        else setView('LOBBY');
+      } else if (stateView === 'RESULTS' || hash === '#results') {
+        if (lastResult) setView('RESULTS');
+        else setView('LOBBY');
+      } else if (stateView === 'LEADERBOARD' || hash === '#leaderboard') {
+        setView('LEADERBOARD');
+      } else if (stateView === 'QUIZ' || hash === '#quiz') {
+        if (activeConfig) setView('QUIZ');
+        else setView('LOBBY');
+      } else {
+        setView('LOBBY');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [lastResult, activeConfig]);
+
   // Start Challenge flow
   const handleStartChallenge = async (config: ChallengeConfig) => {
     setActiveConfig(config);
     const questions = await repo.getQuestionsForChallenge(config);
     setActiveQuestions(questions);
-    setView('QUIZ');
+    navigateToView('QUIZ');
   };
 
   // On Challenge Complete
@@ -103,7 +143,7 @@ export const App: React.FC = () => {
       const refreshed = await storage.getUserProfile();
       setUserProfile(refreshed);
     }
-    setView('RESULTS');
+    navigateToView('RESULTS');
   };
 
   // View Leaderboard
@@ -122,7 +162,7 @@ export const App: React.FC = () => {
       lastResult || undefined
     );
     setLeaderboardEntries(entries);
-    setView('LEADERBOARD');
+    navigateToView('LEADERBOARD');
   };
 
   // Native Android hardware/gesture back button handling via Capacitor
@@ -136,10 +176,12 @@ export const App: React.FC = () => {
             setIsSettingsOpen(false);
           } else if (isProfileOpen) {
             setIsProfileOpen(false);
+          } else if (view === 'REVIEW') {
+            navigateToView('RESULTS');
           } else if (view === 'QUIZ') {
-            setView('LOBBY');
+            navigateToView('LOBBY');
           } else if (view === 'RESULTS' || view === 'LEADERBOARD') {
-            setView('LOBBY');
+            navigateToView('LOBBY');
           } else {
             CapApp.exitApp();
           }
@@ -209,7 +251,23 @@ export const App: React.FC = () => {
             }
           }}
           onViewLeaderboard={() => handleViewLeaderboard()}
-          onHome={() => setView('LOBBY')}
+          onHome={() => navigateToView('LOBBY')}
+          onReviewScripture={() => navigateToView('REVIEW')}
+        />
+      )}
+
+      {view === 'REVIEW' && lastResult && (
+        <ReviewScriptureView
+          result={lastResult}
+          onBack={() => navigateToView('RESULTS')}
+          onPlayAgain={() => {
+            if (activeConfig) {
+              handleStartChallenge({
+                ...activeConfig,
+                challengeId: Math.random().toString(36).substring(2, 8).toUpperCase(),
+              });
+            }
+          }}
         />
       )}
 
@@ -217,7 +275,7 @@ export const App: React.FC = () => {
         <LeaderboardView
           entries={leaderboardEntries}
           challengeId={activeConfig.challengeId}
-          onBack={() => setView(lastResult ? 'RESULTS' : 'LOBBY')}
+          onBack={() => navigateToView(lastResult ? 'RESULTS' : 'LOBBY')}
         />
       )}
 
