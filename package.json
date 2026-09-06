@@ -4,7 +4,7 @@
   "description": "Cross-platform Bible Quiz game engine running on Web, Android, iOS, Windows, macOS, and Linux from a single shared codebase.",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0 --port 3000",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run",

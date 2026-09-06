@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { App as CapApp } from '@capacitor/app';
 import { ChallengeConfig, ChallengeResult } from './data/models/ChallengeModels';
 import { Question } from './data/models/Question';
 import { UserProfile, AppSettings, DEFAULT_SETTINGS } from './data/models/UserProfile';
@@ -123,6 +124,38 @@ export const App: React.FC = () => {
     setLeaderboardEntries(entries);
     setView('LEADERBOARD');
   };
+
+  // Native Android hardware/gesture back button handling via Capacitor
+  useEffect(() => {
+    let removeListener: (() => void) | null = null;
+
+    const setupListener = async () => {
+      try {
+        const handle = await CapApp.addListener('backButton', () => {
+          if (isSettingsOpen) {
+            setIsSettingsOpen(false);
+          } else if (isProfileOpen) {
+            setIsProfileOpen(false);
+          } else if (view === 'QUIZ') {
+            setView('LOBBY');
+          } else if (view === 'RESULTS' || view === 'LEADERBOARD') {
+            setView('LOBBY');
+          } else {
+            CapApp.exitApp();
+          }
+        });
+        removeListener = () => handle.remove();
+      } catch {
+        // Web browser environment, ignored
+      }
+    };
+
+    setupListener();
+
+    return () => {
+      if (removeListener) removeListener();
+    };
+  }, [view, isSettingsOpen, isProfileOpen]);
 
   if (!userProfile) {
     return (
