@@ -38,8 +38,8 @@ export const LeaderboardView: React.FC<Props> = ({ entries, challengeId, onBack 
   };
 
   return (
-    <div className="flex-1 flex flex-col celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-y-auto">
-      <div className="max-w-2xl w-full mx-auto p-4 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+    <div className="w-full min-h-[100vh] min-h-[100dvh] flex-1 flex flex-col celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-y-auto">
+      <div className="max-w-4xl lg:max-w-5xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex-1 flex flex-col justify-between space-y-5">
         
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-amber-500/15">
@@ -147,12 +147,14 @@ export const LeaderboardView: React.FC<Props> = ({ entries, challengeId, onBack 
         </div>
 
         {/* Back Button */}
-        <button
-          onClick={handleBack}
-          className="w-full py-3.5 rounded-xl dark:bg-slate-900 bg-white hover:dark:bg-slate-850 hover:bg-stone-50 border dark:border-slate-800 border-stone-200 dark:text-slate-200 text-stone-800 font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.99] shadow-sm"
-        >
-          Back
-        </button>
+        <div className="pt-2 flex justify-center">
+          <button
+            onClick={handleBack}
+            className="w-full max-w-sm py-3.5 rounded-xl dark:bg-slate-900 bg-white hover:dark:bg-slate-850 hover:bg-stone-50 border dark:border-slate-800 border-stone-200 dark:text-slate-200 text-stone-800 font-bold text-xs uppercase tracking-wider transition-all active:scale-[0.99] shadow-sm"
+          >
+            Back
+          </button>
+        </div>
       </div>
     </div>
   );

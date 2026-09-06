@@ -206,19 +206,19 @@ export const LobbyView: React.FC<Props> = ({
   const activeMode = CHALLENGE_MODES.find((m) => m.seconds === selectedDuration) || CHALLENGE_MODES[2];
 
   return (
-    <div className="flex-1 flex flex-col celestial-bg parchment-pattern text-slate-100 overflow-y-auto selection:bg-amber-500/30 pb-[max(76px,calc(60px+var(--safe-area-bottom)))] sm:pb-6">
+    <div className="w-full min-h-[100vh] min-h-[100dvh] flex-1 flex flex-col celestial-bg parchment-pattern text-slate-100 overflow-x-hidden selection:bg-amber-500/30 pb-[max(80px,calc(68px+var(--safe-area-bottom)))] md:pb-8">
       {/* 1. TOP APP BAR & DESKTOP NAVIGATION */}
-      <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-slate-950/70 border-b border-amber-500/10 pt-[max(4px,var(--safe-area-top))]">
-        <div className="max-w-3xl mx-auto px-4 py-2.5 flex items-center justify-between">
+      <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-slate-950/80 dark:bg-slate-950/80 bg-white/90 border-b border-amber-500/15 pt-[max(4px,var(--safe-area-top))]">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-700 flex items-center justify-center text-slate-950 font-black shadow-md shadow-amber-500/20 ring-1 ring-amber-300/40">
               <BookOpen size={18} className="text-slate-950" />
             </div>
             <div>
-              <div className="font-display font-bold text-sm tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400">
+              <div className="font-display font-bold text-sm sm:text-base tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-300 to-yellow-400">
                 BIBLE QUIZ
               </div>
-              <div className="text-[10px] text-slate-400 font-medium tracking-tight">Scripture Challenge Engine</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 font-medium tracking-tight">Scripture Challenge Engine</div>
             </div>
           </div>
 
@@ -226,9 +226,9 @@ export const LobbyView: React.FC<Props> = ({
           <nav className="hidden md:flex items-center gap-1 bg-slate-900/60 p-1 rounded-xl border border-slate-800">
             <button
               onClick={() => handleTabSwitch('HOME')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                 navTab === 'HOME'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -237,9 +237,9 @@ export const LobbyView: React.FC<Props> = ({
             </button>
             <button
               onClick={() => handleTabSwitch('CHALLENGES')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                 navTab === 'CHALLENGES'
-                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200'
               }`}
             >
@@ -248,14 +248,14 @@ export const LobbyView: React.FC<Props> = ({
             </button>
             <button
               onClick={handleOpenLeaderboard}
-              className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-amber-300 transition-all flex items-center gap-1.5"
+              className="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-400 hover:text-amber-300 transition-all flex items-center gap-1.5"
             >
               <Trophy size={14} />
               <span>Standings</span>
             </button>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <NetworkStatusBadge status={networkStatus} />
             <button
               onClick={() => {
@@ -263,7 +263,7 @@ export const LobbyView: React.FC<Props> = ({
                 haptics.lightTap();
                 onOpenProfile();
               }}
-              className="p-2 rounded-xl bg-slate-900/80 border border-slate-750 text-slate-300 hover:text-amber-300 hover:border-amber-500/40 transition-all active:scale-95"
+              className="p-2 sm:p-2.5 rounded-xl bg-slate-900/80 border border-slate-750 text-slate-300 hover:text-amber-300 hover:border-amber-500/40 transition-all active:scale-95"
               title="Player Profile"
               aria-label="Player Profile"
             >
@@ -275,7 +275,7 @@ export const LobbyView: React.FC<Props> = ({
                 haptics.lightTap();
                 onOpenSettings();
               }}
-              className="p-2 rounded-xl bg-slate-900/80 border border-slate-750 text-slate-300 hover:text-amber-300 hover:border-amber-500/40 transition-all active:scale-95"
+              className="p-2 sm:p-2.5 rounded-xl bg-slate-900/80 border border-slate-750 text-slate-300 hover:text-amber-300 hover:border-amber-500/40 transition-all active:scale-95"
               title="Settings & Audio"
               aria-label="Settings and Audio"
             >
@@ -286,46 +286,46 @@ export const LobbyView: React.FC<Props> = ({
       </header>
 
       {/* 2. MAIN CONTENT AREA */}
-      <main className="max-w-2xl w-full mx-auto px-4 py-5 flex-1 flex flex-col justify-between space-y-6">
+      <main className="w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 flex flex-col justify-between space-y-6 sm:space-y-8">
         
         {navTab === 'HOME' ? (
           <>
             {/* HERO SECTION */}
-            <section className="relative text-center pt-1 pb-3">
+            <section className="relative text-center pt-2 pb-4">
               {/* Subtle Ambient Ray/Glow Behind Hero */}
               <div className="absolute inset-0 -top-6 flex items-center justify-center pointer-events-none opacity-40">
-                <div className="w-80 h-32 bg-amber-500/15 blur-3xl rounded-full" />
+                <div className="w-96 h-40 bg-amber-500/15 blur-3xl rounded-full" />
               </div>
 
               <div className="relative z-10">
                 {/* Elegant Scripture Badge */}
-                <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs font-semibold mb-2 shadow-sm">
+                <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs font-semibold mb-3 shadow-sm">
                   <Sparkles size={13} className="text-amber-400" />
                   <span>Thy Word is a lamp unto my feet</span>
                 </div>
 
-                <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-white mb-1.5 leading-tight">
+                <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-2 leading-tight">
                   BIBLE QUIZ
                 </h1>
                 
-                <p className="text-sm sm:text-base text-amber-100/90 font-medium italic mb-1.5 font-serif">
+                <p className="text-sm sm:text-base md:text-lg text-amber-100/90 font-medium italic mb-2 font-serif">
                   "How well do you know Scripture?"
                 </p>
 
-                <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto leading-relaxed">
+                <p className="text-xs sm:text-sm md:text-base text-slate-400 max-w-lg mx-auto leading-relaxed">
                   Test Your Knowledge • Challenge Your Friends • Master Scripture
                 </p>
 
                 {/* Cinematic Sacred Manuscript Hero Visual */}
-                <HeroIllustration className="my-2.5 max-h-44" />
+                <HeroIllustration className="my-4 max-h-48 sm:max-h-56 lg:max-h-64" />
               </div>
 
               {/* PRIMARY ACTION TRIO (Play Now / Create / Join) */}
-              <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3 max-w-lg mx-auto">
+              <div className="mt-5 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-2xl mx-auto w-full">
                 {/* Play Now (Primary) */}
                 <button
                   onClick={handlePlayNow}
-                  className="w-full sm:w-auto flex-1 gold-button py-3.5 px-6 rounded-xl flex items-center justify-center gap-2.5 text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-lg shadow-amber-500/20"
+                  className="w-full sm:w-auto flex-1 gold-button py-3.5 sm:py-4 px-6 sm:px-8 rounded-xl flex items-center justify-center gap-2.5 text-slate-950 font-black text-sm uppercase tracking-wider transition-all shadow-lg shadow-amber-500/20"
                 >
                   <Play size={18} fill="currentColor" />
                   <span>Play Now</span>
@@ -338,7 +338,7 @@ export const LobbyView: React.FC<Props> = ({
                     haptics.lightTap();
                     setIsCreateModalOpen(true);
                   }}
-                  className="w-full sm:w-auto flex-1 py-3.5 px-4 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-amber-500/30 text-slate-200 hover:text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                  className="w-full sm:w-auto flex-1 py-3.5 sm:py-4 px-5 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-amber-500/30 text-slate-200 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
                 >
                   <Plus size={16} className="text-amber-400" />
                   <span>Create Challenge</span>
@@ -352,7 +352,7 @@ export const LobbyView: React.FC<Props> = ({
                     setCustomJoinInput('');
                     setIsJoinModalOpen(true);
                   }}
-                  className="w-full sm:w-auto flex-1 py-3.5 px-4 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-indigo-500/30 text-slate-200 hover:text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
+                  className="w-full sm:w-auto flex-1 py-3.5 sm:py-4 px-5 rounded-xl bg-slate-900/90 hover:bg-slate-850 border border-indigo-500/30 text-slate-200 hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-95 shadow-sm"
                 >
                   <Users size={16} className="text-indigo-400" />
                   <span>Join Challenge</span>
@@ -361,22 +361,22 @@ export const LobbyView: React.FC<Props> = ({
             </section>
 
             {/* FEATURED / DAILY CHALLENGE SECTION */}
-            <section className="sacred-card rounded-2xl p-4 sm:p-5 relative overflow-hidden">
-              <div className="absolute -right-8 -bottom-8 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+            <section className="sacred-card rounded-2xl p-5 sm:p-6 lg:p-7 relative overflow-hidden">
+              <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
               
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="space-y-1">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+                <div className="space-y-1.5 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
                       <Sparkles size={11} className="text-amber-400" />
                       <span>TODAY'S CHALLENGE</span>
                     </span>
                     <span className="text-xs text-slate-400 font-mono">Room #{challengeCode}</span>
                   </div>
-                  <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg md:text-xl font-bold text-white flex items-center gap-2">
                     <span>Can you beat today's Bible challenge?</span>
                   </h2>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400 pt-1">
+                  <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-slate-400 pt-1">
                     <span>📖 35 Questions</span>
                     <span>•</span>
                     <span>⏱️ {activeMode.name} ({activeMode.label})</span>
@@ -398,27 +398,27 @@ export const LobbyView: React.FC<Props> = ({
 
                 <button
                   onClick={handlePlayNow}
-                  className="w-full sm:w-auto flex-shrink-0 gold-button py-2.5 px-6 rounded-xl text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 transition-all active:scale-95"
+                  className="w-full md:w-auto flex-shrink-0 gold-button py-3 px-8 rounded-xl text-slate-950 font-black text-xs sm:text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-md shadow-amber-500/20 transition-all active:scale-95"
                 >
-                  <Play size={14} fill="currentColor" />
-                  <span>PLAY</span>
+                  <Play size={15} fill="currentColor" />
+                  <span>PLAY NOW</span>
                 </button>
               </div>
             </section>
 
             {/* CHALLENGE DURATION MODE CARDS */}
-            <section className="space-y-2.5">
+            <section className="space-y-3">
               <div className="flex items-center justify-between px-1">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                  <Clock size={14} className="text-amber-400" />
+                <label className="text-xs sm:text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                  <Clock size={15} className="text-amber-400" />
                   <span>Select Challenge Duration</span>
                 </label>
-                <span className="text-[11px] text-amber-300/80 font-medium">
+                <span className="text-xs text-amber-300/80 font-medium">
                   Mode: <span className="font-bold text-white">{activeMode.name}</span>
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
                 {CHALLENGE_MODES.map((mode) => {
                   const isSelected = selectedDuration === mode.seconds;
                   const IconComp = mode.icon;
@@ -427,29 +427,29 @@ export const LobbyView: React.FC<Props> = ({
                     <button
                       key={mode.seconds}
                       onClick={() => handleSelectMode(mode.seconds)}
-                      className={`relative p-3 rounded-xl border text-left transition-all flex flex-col justify-between h-28 sacred-card-interactive ${
+                      className={`relative p-3.5 sm:p-4 rounded-xl border text-left transition-all flex flex-col justify-between h-32 sacred-card-interactive ${
                         isSelected
                           ? 'bg-gradient-to-b from-amber-950/40 via-slate-900 to-slate-900 border-amber-500/80 text-white shadow-[0_0_16px_rgba(245,158,11,0.22)] ring-1 ring-amber-400/40'
                           : 'bg-slate-900/80 border-slate-800/80 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                       }`}
                     >
                       <div className="flex items-center justify-between w-full">
-                        <span className={`text-base font-black tracking-tight font-mono ${isSelected ? 'text-amber-400' : 'text-slate-200'}`}>
+                        <span className={`text-base sm:text-lg font-black tracking-tight font-mono ${isSelected ? 'text-amber-400' : 'text-slate-200'}`}>
                           {mode.label}
                         </span>
-                        <IconComp size={16} className={isSelected ? 'text-amber-400' : 'text-slate-500'} />
+                        <IconComp size={18} className={isSelected ? 'text-amber-400' : 'text-slate-500'} />
                       </div>
 
                       <div>
-                        <div className={`font-bold text-xs leading-snug ${isSelected ? 'text-white' : 'text-slate-300'}`}>
+                        <div className={`font-bold text-xs sm:text-sm leading-snug ${isSelected ? 'text-white' : 'text-slate-300'}`}>
                           {mode.name}
                         </div>
-                        <div className="text-[10px] text-slate-400 line-clamp-2 mt-0.5 leading-tight opacity-90">
+                        <div className="text-[10px] sm:text-xs text-slate-400 line-clamp-2 mt-0.5 leading-tight opacity-90">
                           {mode.tagline}
                         </div>
                       </div>
 
-                      <div className="text-[9px] font-semibold text-amber-400/80 uppercase tracking-tight">
+                      <div className="text-[9px] sm:text-[10px] font-semibold text-amber-400/80 uppercase tracking-tight">
                         {mode.difficulty}
                       </div>
                     </button>
@@ -460,17 +460,17 @@ export const LobbyView: React.FC<Props> = ({
           </>
         ) : (
           /* EXPANDED CHALLENGE MODES SHOWCASE TAB */
-          <section className="space-y-4">
+          <section className="space-y-5">
             <div className="text-center pb-2">
-              <h2 className="font-display text-2xl font-bold text-white tracking-wide">
+              <h2 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
                 Select Your Challenge Mode
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">
                 Choose the intensity and time limit for your Scripture trial
               </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
               {CHALLENGE_MODES.map((mode) => {
                 const isSelected = selectedDuration === mode.seconds;
                 const IconComp = mode.icon;
@@ -478,10 +478,10 @@ export const LobbyView: React.FC<Props> = ({
                 return (
                   <div
                     key={mode.seconds}
-                    className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 ${
                       isSelected
                         ? 'sacred-card border-amber-500/80 shadow-[0_0_20px_rgba(245,158,11,0.2)] ring-1 ring-amber-400/40'
-                        : 'bg-slate-900/80 border-slate-800'
+                        : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'
                     }`}
                   >
                     <div className="flex items-start sm:items-center gap-3.5">
@@ -527,19 +527,19 @@ export const LobbyView: React.FC<Props> = ({
         )}
 
         {/* MATCH SEED & NETWORK MODE BAR */}
-        <section className="sacred-card rounded-xl p-3.5 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <section className="sacred-card rounded-2xl p-4 sm:p-5 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             {/* Room Code Indicator */}
-            <div className="flex items-center gap-2.5 flex-1">
-              <div className="w-8 h-8 rounded-lg bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center text-indigo-400 flex-shrink-0">
-                <Hash size={16} />
+            <div className="flex items-center gap-3 flex-1">
+              <div className="w-9 h-9 rounded-xl bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center text-indigo-400 flex-shrink-0">
+                <Hash size={18} />
               </div>
               <div>
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider font-bold">
+                <div className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider font-bold">
                   Cross-Play Seed Code
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm font-black text-amber-300 tracking-wider">
+                  <span className="font-mono text-sm sm:text-base font-black text-amber-300 tracking-wider">
                     {challengeCode}
                   </span>
                   <button
@@ -559,7 +559,7 @@ export const LobbyView: React.FC<Props> = ({
             </div>
 
             {/* Online Toggle */}
-            <div className="flex items-center gap-3 bg-slate-900/90 px-3 py-1.5 rounded-lg border border-slate-800">
+            <div className="flex items-center gap-3 bg-slate-900/90 px-3.5 py-2 rounded-xl border border-slate-800">
               <Globe size={16} className={isOnlineMode ? 'text-emerald-400' : 'text-slate-500'} />
               <div className="text-right">
                 <div className="text-xs font-semibold text-slate-200">

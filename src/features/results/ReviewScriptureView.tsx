@@ -67,10 +67,10 @@ export const ReviewScriptureView: React.FC<Props> = ({
   };
 
   return (
-    <div className="w-full min-h-[100dvh] flex-1 flex flex-col celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-y-auto selection:bg-amber-500/30">
+    <div className="w-full min-h-[100vh] min-h-[100dvh] flex-1 flex flex-col celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-y-auto selection:bg-amber-500/30">
       {/* 1. STICKY TOP HEADER */}
       <header className="sticky top-0 z-40 w-full backdrop-blur-xl dark:bg-[#080D1A]/90 bg-[#FAF7F0]/90 border-b dark:border-amber-500/15 border-stone-200 transition-colors pt-[max(8px,var(--safe-area-top))] shadow-md">
-        <div className="w-full max-w-[1040px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3">
+        <div className="w-full max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3">
           {/* Back Button */}
           <button
             onClick={handleBack}
@@ -101,7 +101,7 @@ export const ReviewScriptureView: React.FC<Props> = ({
       </header>
 
       {/* 2. MAIN SCROLLABLE CONTENT */}
-      <main className="w-full max-w-[1040px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 flex flex-col space-y-6">
+      <main className="w-full max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1 flex flex-col space-y-6">
         {/* Banner & Filter Overview */}
         <div className="sacred-card rounded-2xl p-4 sm:p-6 shadow-xl border dark:border-amber-500/20 border-amber-200">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

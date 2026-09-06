@@ -223,11 +223,11 @@ export const QuizGameView: React.FC<Props> = ({
   const hintText = getHintText(currentQuestion);
 
   return (
-    <div className="flex-1 flex flex-col justify-between celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-hidden select-none relative">
+    <div className="w-full min-h-[100vh] min-h-[100dvh] flex-1 flex flex-col justify-between celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-x-hidden select-none relative">
       
       {/* 1. TOP HEADER: TIME | SCORE | COMBO */}
-      <header className="w-full backdrop-blur-md dark:bg-slate-950/85 bg-white/90 dark:border-amber-500/15 border-amber-500/20 border-b px-3 sm:px-4 pt-[max(8px,var(--safe-area-top))] pb-2 sm:pb-2.5 z-20 shadow-md">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+      <header className="w-full backdrop-blur-md dark:bg-slate-950/85 bg-white/90 dark:border-amber-500/15 border-amber-500/20 border-b px-4 sm:px-6 lg:px-8 pt-[max(8px,var(--safe-area-top))] pb-2.5 sm:pb-3 z-20 shadow-md">
+        <div className="w-full max-w-5xl lg:max-w-6xl mx-auto flex items-center justify-between">
           
           {/* Back Button */}
           <button
@@ -241,7 +241,7 @@ export const QuizGameView: React.FC<Props> = ({
 
           {/* TIME */}
           <div className="flex flex-col items-center">
-            <span className="text-[9px] tracking-widest uppercase dark:text-slate-400 text-stone-500 font-bold">
+            <span className="text-[9px] sm:text-[10px] tracking-widest uppercase dark:text-slate-400 text-stone-500 font-bold">
               TIME
             </span>
             <span
@@ -259,7 +259,7 @@ export const QuizGameView: React.FC<Props> = ({
 
           {/* SCORE */}
           <div className="flex flex-col items-center relative">
-            <span className="text-[9px] tracking-widest uppercase dark:text-slate-400 text-stone-500 font-bold">
+            <span className="text-[9px] sm:text-[10px] tracking-widest uppercase dark:text-slate-400 text-stone-500 font-bold">
               SCORE
             </span>
             <div className="flex items-center gap-1">
@@ -274,7 +274,7 @@ export const QuizGameView: React.FC<Props> = ({
 
             {/* Non-intrusive floating speed bonus indicator */}
             {speedBonusAlert && (
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-extrabold text-emerald-500 dark:text-emerald-400 dark:bg-emerald-950/90 bg-emerald-50 border border-emerald-500/40 px-2 py-0.2 rounded-full shadow-md animate-in fade-in slide-in-from-top-1 duration-200">
+              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-extrabold text-emerald-500 dark:text-emerald-400 dark:bg-emerald-950/90 bg-emerald-50 border border-emerald-500/40 px-2.5 py-0.5 rounded-full shadow-md animate-in fade-in slide-in-from-top-1 duration-200">
                 +{speedBonusAlert.amount} {speedBonusAlert.message}
               </div>
             )}
@@ -282,7 +282,7 @@ export const QuizGameView: React.FC<Props> = ({
 
           {/* COMBO */}
           <div className="flex flex-col items-center">
-            <span className="text-[9px] tracking-widest uppercase dark:text-slate-400 text-stone-500 font-bold">
+            <span className="text-[9px] sm:text-[10px] tracking-widest uppercase dark:text-slate-400 text-stone-500 font-bold">
               COMBO
             </span>
             <div className="flex items-center gap-1">
@@ -308,7 +308,7 @@ export const QuizGameView: React.FC<Props> = ({
         </div>
 
         {/* Precision Progress Bar */}
-        <div className="max-w-2xl mx-auto w-full dark:bg-slate-900/80 bg-stone-200 h-1.5 mt-2 rounded-full overflow-hidden border dark:border-slate-800/80 border-stone-300">
+        <div className="w-full max-w-5xl lg:max-w-6xl mx-auto dark:bg-slate-900/80 bg-stone-200 h-2 mt-2 rounded-full overflow-hidden border dark:border-slate-800/80 border-stone-300">
           <div
             className={`h-full transition-all duration-200 ${
               isTimeCritical
@@ -331,20 +331,20 @@ export const QuizGameView: React.FC<Props> = ({
       )}
 
       {/* 2. CENTRAL FOCUSED GAMEPLAY AREA */}
-      <main className="flex-1 flex flex-col justify-center max-w-2xl w-full mx-auto px-3 sm:px-4 py-2 sm:py-3 overflow-y-auto">
+      <main className="flex-1 flex flex-col justify-center w-full max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5 overflow-y-auto">
         
         {/* Question Header & Meta Pill */}
-        <div className="text-center mb-2.5 sm:mb-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-bold dark:bg-slate-900/90 bg-amber-500/10 border dark:border-amber-500/20 border-amber-500/30 dark:text-amber-300 text-amber-800 mb-2 shadow-sm">
+        <div className="text-center mb-2.5 sm:mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold dark:bg-slate-900/90 bg-amber-500/10 border dark:border-amber-500/20 border-amber-500/30 dark:text-amber-300 text-amber-800 mb-2 shadow-sm">
             <span>Question {questionIndex + 1}</span>
             <span className="opacity-40">•</span>
-            <span className="uppercase tracking-wider text-[10px]">
+            <span className="uppercase tracking-wider text-[10px] sm:text-[11px]">
               {currentQuestion.difficulty.replace('_', ' ')}
             </span>
           </div>
 
           {/* Question Text */}
-          <h1 className="text-base sm:text-lg md:text-xl font-bold leading-snug dark:text-white text-stone-900 max-w-xl mx-auto px-1">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold leading-snug dark:text-white text-stone-900 max-w-3xl mx-auto px-2 text-center">
             {currentQuestion.question}
           </h1>
         </div>
@@ -353,7 +353,7 @@ export const QuizGameView: React.FC<Props> = ({
         <VisualQuestionCard question={currentQuestion} />
 
         {/* FOUR ANSWER OPTIONS (A, B, C, D) - Responsive 1-col on mobile, 2-col on tablet/desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-2.5 mt-2.5 sm:mt-3 max-w-xl w-full mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3.5 mt-3 sm:mt-5 max-w-3xl lg:max-w-4xl w-full mx-auto">
           {currentQuestion.options.map((option, idx) => {
             const letter = String.fromCharCode(65 + idx); // A, B, C, D
             const isSelected = selectedOption === option;
@@ -378,11 +378,11 @@ export const QuizGameView: React.FC<Props> = ({
                 key={option}
                 onClick={() => handleSelectOption(option)}
                 disabled={selectedOption !== null}
-                className={`group relative flex items-center min-h-[50px] sm:min-h-[54px] p-3 sm:p-3.5 rounded-xl border text-left font-medium transition-all sacred-card-interactive ${buttonClass} focus:outline-none focus:ring-2 focus:ring-amber-400/60 active:scale-[0.985]`}
+                className={`group relative flex items-center min-h-[54px] sm:min-h-[60px] p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border text-left font-medium transition-all sacred-card-interactive ${buttonClass} focus:outline-none focus:ring-2 focus:ring-amber-400/60 active:scale-[0.985]`}
                 aria-label={`Option ${letter}: ${option}`}
               >
                 {/* Letter Badge */}
-                <span className={`flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-xs font-black mr-2.5 sm:mr-3 transition-colors ${
+                <span className={`flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-xs sm:text-sm font-black mr-3 transition-colors ${
                   evaluatingResult && isCorrect
                     ? 'bg-emerald-500 text-white dark:text-slate-950'
                     : evaluatingResult && isSelected && !isCorrect
@@ -398,7 +398,7 @@ export const QuizGameView: React.FC<Props> = ({
                 </span>
 
                 {/* Keyboard Shortcut Indicator on Desktop */}
-                <span className="hidden md:inline-block text-[10px] dark:text-slate-500 text-stone-400 group-hover:text-amber-500 ml-2 font-mono">
+                <span className="hidden md:inline-block text-[11px] dark:text-slate-500 text-stone-400 group-hover:text-amber-500 ml-2 font-mono">
                   [{idx + 1}]
                 </span>
               </button>
@@ -408,8 +408,8 @@ export const QuizGameView: React.FC<Props> = ({
       </main>
 
       {/* 3. ANCHORED BOTTOM HINT (Permanently anchored at bottom) */}
-      <footer className="w-full dark:bg-slate-950/90 bg-white/95 backdrop-blur-md border-t dark:border-amber-500/15 border-amber-500/20 z-20 pb-[max(8px,var(--safe-area-bottom))]">
-        <div className="max-w-2xl mx-auto px-3 sm:px-4 py-2">
+      <footer className="w-full dark:bg-slate-950/90 bg-white/95 backdrop-blur-md border-t dark:border-amber-500/15 border-amber-500/20 z-20 pb-[max(10px,var(--safe-area-bottom))] pt-2">
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
           <button
             onClick={toggleHint}
             className="w-full flex items-center justify-between py-2 px-3.5 rounded-xl dark:bg-slate-900/80 bg-amber-50/80 hover:dark:bg-slate-850 hover:bg-amber-100/80 border dark:border-slate-800 border-amber-500/30 dark:text-amber-300 text-amber-900 text-xs font-bold transition-all active:scale-[0.99]"

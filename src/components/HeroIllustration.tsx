@@ -6,7 +6,7 @@ interface Props {
 
 export const HeroIllustration: React.FC<Props> = ({ className = '' }) => {
   return (
-    <div className={`relative w-full max-w-sm mx-auto overflow-hidden pointer-events-none select-none ${className}`}>
+    <div className={`relative w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto overflow-hidden pointer-events-none select-none ${className}`}>
       {/* Ambient background glow */}
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-56 h-36 bg-amber-500/20 dark:bg-amber-500/15 rounded-full blur-3xl opacity-70 animate-pulse" />

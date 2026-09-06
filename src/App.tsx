@@ -201,7 +201,7 @@ export const App: React.FC = () => {
 
   if (!userProfile) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-slate-950 text-slate-400 font-sans">
+      <div className="flex-1 flex items-center justify-center w-full min-h-[100vh] min-h-[100dvh] bg-slate-950 text-slate-400 font-sans">
         <div className="text-center">
           <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mx-auto mb-3 animate-pulse text-xl">
             ✝
@@ -213,7 +213,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className={`flex-1 flex flex-col w-full h-full font-sans overflow-hidden transition-colors duration-200 ${
+    <div className={`flex-1 flex flex-col w-full min-h-[100vh] min-h-[100dvh] font-sans overflow-x-hidden transition-colors duration-200 ${
       settings.darkMode ? 'theme-dark bg-[#080D1A] text-slate-100' : 'theme-light bg-[#FAF7F0] text-stone-900'
     }`}>
       {view === 'LOBBY' && (

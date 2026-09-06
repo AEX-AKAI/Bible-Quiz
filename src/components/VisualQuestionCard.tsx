@@ -18,7 +18,7 @@ export const VisualQuestionCard: React.FC<Props> = ({ question }) => {
   const src = question.localAssetPath || question.imageUrl;
 
   return (
-    <div className="relative w-full max-w-md mx-auto my-2 rounded-2xl overflow-hidden sacred-card shadow-xl border border-amber-500/20">
+    <div className="relative w-full max-w-lg md:max-w-xl mx-auto my-2 rounded-2xl overflow-hidden sacred-card shadow-xl border border-amber-500/20">
       {!isLoaded && !hasError && (
         <div className="w-full h-36 sm:h-44 flex flex-col items-center justify-center bg-slate-900 animate-shimmer text-slate-400 text-xs gap-2">
           <div className="w-8 h-8 rounded-full border-2 border-amber-500/30 border-t-amber-400 animate-spin" />

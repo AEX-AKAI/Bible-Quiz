@@ -67,7 +67,7 @@ export const ResultsView: React.FC<Props> = ({
   const reviewCount = result.answerReviews?.length || result.questionsAnswered;
 
   return (
-    <div className="w-full min-h-[100dvh] flex-1 flex flex-col items-center justify-start sm:justify-center celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-y-auto overflow-x-hidden relative py-6 sm:py-10 px-4 sm:px-6 md:px-8 lg:px-12">
+    <div className="w-full min-h-[100vh] min-h-[100dvh] flex-1 flex flex-col items-center justify-start sm:justify-center celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-y-auto overflow-x-hidden relative py-6 sm:py-10 px-4 sm:px-6 md:px-8 lg:px-12">
       {/* Radiant Background Aura */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[32rem] sm:w-[48rem] h-80 sm:h-96 bg-amber-500/10 blur-3xl pointer-events-none rounded-full" />
       <div className="absolute bottom-10 right-10 w-72 h-72 bg-indigo-500/10 blur-3xl pointer-events-none rounded-full" />
@@ -188,7 +188,7 @@ export const ResultsView: React.FC<Props> = ({
         </section>
 
         {/* Action Controls Area */}
-        <section className="w-full max-w-2xl flex flex-col items-center space-y-4 pt-1">
+        <section className="w-full max-w-3xl lg:max-w-4xl flex flex-col items-center space-y-4 pt-1">
           
           {/* Primary Action: REVIEW SCRIPTURE (Opens Dedicated Page) */}
           <button
