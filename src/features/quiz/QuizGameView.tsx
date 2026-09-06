@@ -6,10 +6,21 @@ import { TimerState } from '../../core/timer/CrossPlatformTimer';
 import { QuestionScoreResult, QuestionDifficultyStage } from '../../core/types';
 import { WebAudioEngine } from '../../platform/audio/WebAudioEngine';
 import { HapticService } from '../../platform/haptics/HapticService';
-import { VisualQuestionCard } from '../../components/VisualQuestionCard';
 import { getHintText } from '../../data/models/Question';
 import { QuestionRepository } from '../../data/repositories/QuestionRepository';
-import { Lightbulb, ChevronUp, ChevronDown, Flame, ArrowLeft, Zap, Sparkles, TrendingUp } from 'lucide-react';
+import { AppNavbar } from '../../components/AppNavbar';
+import { 
+  Lightbulb, 
+  ChevronUp, 
+  ChevronDown, 
+  Flame, 
+  X, 
+  Zap, 
+  Sparkles, 
+  ArrowRight,
+  Check,
+  BookOpen
+} from 'lucide-react';
 
 interface Props {
   config: ChallengeConfig;
@@ -177,7 +188,7 @@ export const QuizGameView: React.FC<Props> = ({
     });
   }, [audioEngine, haptic]);
 
-  // Desktop & Keyboard Shortcuts: 1, 2, 3, 4, Space/H (hint), Escape (exit)
+  // Desktop Keyboard Shortcuts: 1, 2, 3, 4, Space/H (hint), Escape (exit)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!currentQuestion || selectedOption !== null) return;
@@ -204,10 +215,10 @@ export const QuizGameView: React.FC<Props> = ({
 
   if (!currentQuestion) {
     return (
-      <div className="flex-1 flex items-center justify-center celestial-bg text-slate-400">
+      <div className="w-full min-h-[100vh] min-h-[100dvh] flex-1 flex items-center justify-center celestial-bg text-slate-400">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 mx-auto rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 animate-pulse">
-            <Sparkles size={20} />
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 animate-pulse">
+            <Sparkles size={24} />
           </div>
           <p className="text-xs font-semibold tracking-wider uppercase text-slate-300">
             Preparing Scripture Challenge...
@@ -217,160 +228,136 @@ export const QuizGameView: React.FC<Props> = ({
     );
   }
 
-  const timePercent = Math.max(0, Math.min(100, (remainingTime / totalTime) * 100));
-  const isTimeCritical = remainingTime <= 10;
-  const isFinalFive = remainingTime <= 5 && remainingTime > 0;
-  const hintText = getHintText(currentQuestion);
+  const isLowTime = remainingTime <= 5;
+  const isUrgent = remainingTime <= 10;
+  const optionLetters = ['A', 'B', 'C', 'D'];
 
   return (
-    <div className="w-full min-h-[100vh] min-h-[100dvh] flex-1 flex flex-col justify-between celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-x-hidden select-none relative">
+    <div className="w-full min-h-[100vh] min-h-[100dvh] flex-1 flex flex-col celestial-bg parchment-pattern dark:text-slate-100 text-stone-900 overflow-x-hidden selection:bg-amber-500/30">
       
-      {/* 1. TOP HEADER: TIME | SCORE | COMBO */}
-      <header className="w-full backdrop-blur-md dark:bg-slate-950/85 bg-white/90 dark:border-amber-500/15 border-amber-500/20 border-b px-4 sm:px-6 lg:px-8 pt-[max(8px,var(--safe-area-top))] pb-2.5 sm:pb-3 z-20 shadow-md">
-        <div className="w-full max-w-5xl lg:max-w-6xl mx-auto flex items-center justify-between">
-          
-          {/* Back Button */}
-          <button
-            onClick={onExit}
-            className="p-2 -ml-2 rounded-xl dark:text-slate-400 text-stone-500 hover:text-amber-500 dark:hover:text-white dark:hover:bg-slate-900 hover:bg-stone-100 border border-transparent transition-all active:scale-95"
-            title="Exit Challenge"
-            aria-label="Exit Challenge"
-          >
-            <ArrowLeft size={18} />
-          </button>
+      {/* 1. TOP APP BAR */}
+      <AppNavbar
+        isQuizActive={true}
+        onNavigate={() => {}}
+        onExitQuiz={onExit}
+      />
 
-          {/* TIME */}
-          <div className="flex flex-col items-center">
-            <span className="text-[9px] sm:text-[10px] tracking-widest uppercase dark:text-slate-400 text-stone-500 font-bold">
-              TIME
-            </span>
-            <span
-              className={`font-mono text-xl sm:text-2xl font-black tracking-tight transition-all ${
-                isFinalFive
-                  ? 'text-rose-500 animate-pulse scale-105 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]'
-                  : isTimeCritical
-                  ? 'text-amber-500'
-                  : 'dark:text-slate-100 text-stone-900'
-              }`}
-            >
-              {Math.floor(remainingTime / 60)}:{(remainingTime % 60).toString().padStart(2, '0')}
-            </span>
+      {/* 2. MAIN QUIZ CONTAINER (Matching Screen 2 & 8) */}
+      <main className="w-full max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex-1 flex flex-col justify-between space-y-4 sm:space-y-6">
+        
+        {/* HUD BAR (Question Progress, Circular Timer, Score & Combo) */}
+        <div className="sacred-card rounded-2xl px-4 sm:px-8 py-3.5 border border-amber-500/20 flex items-center justify-between shadow-xl">
+          
+          {/* Left: Question Number */}
+          <div className="text-left">
+            <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">
+              Question
+            </div>
+            <div className="font-mono text-lg sm:text-2xl font-black text-white">
+              {questionIndex + 1} <span className="text-slate-500 text-sm sm:text-base font-normal">/ {totalQuestions}</span>
+            </div>
           </div>
 
-          {/* SCORE */}
-          <div className="flex flex-col items-center relative">
-            <span className="text-[9px] sm:text-[10px] tracking-widest uppercase dark:text-slate-400 text-stone-500 font-bold">
-              SCORE
-            </span>
-            <div className="flex items-center gap-1">
-              <span
-                className={`font-mono text-xl sm:text-2xl font-black dark:text-amber-400 text-amber-600 transition-transform ${
-                  scoreUpdated ? 'score-updated' : ''
-                }`}
-              >
-                {score.toFixed(1)}
+          {/* Center: Circular Timer Badge (Matching Reference Design) */}
+          <div className="relative flex flex-col items-center">
+            <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center border-3 transition-all duration-300 ${
+              isLowTime
+                ? 'border-rose-500 bg-rose-950/60 shadow-[0_0_20px_rgba(244,63,94,0.6)] animate-pulse'
+                : isUrgent
+                ? 'border-amber-400 bg-amber-950/60 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
+                : 'border-amber-400/80 bg-slate-900/90 shadow-[0_0_15px_rgba(245,158,11,0.25)]'
+            }`}>
+              <span className={`font-mono text-xl sm:text-2xl font-black ${
+                isLowTime ? 'text-rose-400' : 'text-amber-300'
+              }`}>
+                {remainingTime}
               </span>
             </div>
+            <div className="text-[9px] uppercase font-bold tracking-widest text-slate-400 mt-1">
+              Seconds
+            </div>
+          </div>
 
-            {/* Non-intrusive floating speed bonus indicator */}
-            {speedBonusAlert && (
-              <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-extrabold text-emerald-500 dark:text-emerald-400 dark:bg-emerald-950/90 bg-emerald-50 border border-emerald-500/40 px-2.5 py-0.5 rounded-full shadow-md animate-in fade-in slide-in-from-top-1 duration-200">
-                +{speedBonusAlert.amount} {speedBonusAlert.message}
+          {/* Right: Score & Combo */}
+          <div className="text-right flex items-center gap-4">
+            {combo >= 2 && (
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 text-amber-300 text-xs font-black animate-bounce-short">
+                <Flame size={14} className="text-orange-400 fill-orange-400" />
+                <span>x{combo}</span>
               </div>
             )}
-          </div>
-
-          {/* COMBO */}
-          <div className="flex flex-col items-center">
-            <span className="text-[9px] sm:text-[10px] tracking-widest uppercase dark:text-slate-400 text-stone-500 font-bold">
-              COMBO
-            </span>
-            <div className="flex items-center gap-1">
-              {combo >= 3 && (
-                <Flame
-                  size={15}
-                  className={`text-amber-500 ${combo >= 5 ? 'animate-bounce text-orange-400' : ''}`}
-                />
-              )}
-              <span
-                className={`font-mono text-xl sm:text-2xl font-black tracking-tight ${
-                  combo >= 5
-                    ? 'text-amber-500 dark:text-amber-300 drop-shadow-[0_0_10px_rgba(245,158,11,0.6)] combo-flare'
-                    : combo >= 3
-                    ? 'text-amber-500'
-                    : 'dark:text-slate-300 text-stone-700'
-                }`}
-              >
-                {combo}x
-              </span>
+            <div>
+              <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">
+                Score
+              </div>
+              <div className={`font-mono text-lg sm:text-2xl font-black text-amber-300 transition-transform ${scoreUpdated ? 'scale-110' : ''}`}>
+                {Math.round(score)}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Precision Progress Bar */}
-        <div className="w-full max-w-5xl lg:max-w-6xl mx-auto dark:bg-slate-900/80 bg-stone-200 h-2 mt-2 rounded-full overflow-hidden border dark:border-slate-800/80 border-stone-300">
-          <div
-            className={`h-full transition-all duration-200 ${
-              isTimeCritical
-                ? 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]'
-                : 'bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-300'
-            }`}
-            style={{ width: `${timePercent}%` }}
-          />
-        </div>
-      </header>
-
-      {/* DIFFICULTY PROGRESSION NOTIFICATION TOAST */}
-      {difficultyBanner && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-40 animate-in fade-in slide-in-from-top-2 duration-200 pointer-events-none">
-          <div className="px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-yellow-600 text-slate-950 text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-xl shadow-amber-500/30">
-            <TrendingUp size={14} />
-            <span>Difficulty Elevated: {difficultyBanner}</span>
-          </div>
-        </div>
-      )}
-
-      {/* 2. CENTRAL FOCUSED GAMEPLAY AREA */}
-      <main className="flex-1 flex flex-col justify-center w-full max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-5 overflow-y-auto">
-        
-        {/* Question Header & Meta Pill */}
-        <div className="text-center mb-2.5 sm:mb-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] sm:text-xs font-bold dark:bg-slate-900/90 bg-amber-500/10 border dark:border-amber-500/20 border-amber-500/30 dark:text-amber-300 text-amber-800 mb-2 shadow-sm">
-            <span>Question {questionIndex + 1}</span>
-            <span className="opacity-40">•</span>
-            <span className="uppercase tracking-wider text-[10px] sm:text-[11px]">
-              {currentQuestion.difficulty.replace('_', ' ')}
-            </span>
+        {/* QUESTION CARD (Category Pill + Large Question + Optional Visual) */}
+        <div className="sacred-card rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 border border-amber-500/25 shadow-2xl relative flex-1 flex flex-col justify-center text-center">
+          
+          {/* Category Capsule Tag */}
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mx-auto mb-4">
+            <BookOpen size={12} />
+            <span>{currentQuestion.book ? `${currentQuestion.book} • ${currentQuestion.difficulty}` : currentQuestion.difficulty}</span>
           </div>
 
           {/* Question Text */}
-          <h1 className="text-lg sm:text-xl md:text-2xl font-bold leading-snug dark:text-white text-stone-900 max-w-3xl mx-auto px-2 text-center">
+          <h2 className="font-display text-lg sm:text-2xl md:text-3xl font-extrabold text-white leading-relaxed max-w-3xl mx-auto mb-4">
             {currentQuestion.question}
-          </h1>
+          </h2>
+
+          {/* Optional Visual Image Card */}
+          {(currentQuestion.imageUrl || currentQuestion.questionType === 'IMAGE') && (
+            <div className="my-3 max-w-sm mx-auto rounded-xl overflow-hidden border border-amber-500/30 shadow-md">
+              <img 
+                src={currentQuestion.imageUrl} 
+                alt="Scripture location or artifact" 
+                className="w-full h-36 sm:h-44 object-cover"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+            </div>
+          )}
+
+          {/* Speed bonus pop badge */}
+          {speedBonusAlert && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-xs font-bold mx-auto animate-bounce-short mb-2">
+              <Zap size={13} className="text-amber-400" />
+              <span>+{speedBonusAlert.amount} Speed Bonus!</span>
+            </div>
+          )}
         </div>
 
-        {/* Optional Visual Image Card */}
-        <VisualQuestionCard question={currentQuestion} />
-
-        {/* FOUR ANSWER OPTIONS (A, B, C, D) - Responsive 1-col on mobile, 2-col on tablet/desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3.5 mt-3 sm:mt-5 max-w-3xl lg:max-w-4xl w-full mx-auto">
+        {/* 2x2 ANSWER OPTIONS GRID (Matching Reference Screen 2 & 8) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
           {currentQuestion.options.map((option, idx) => {
-            const letter = String.fromCharCode(65 + idx); // A, B, C, D
+            const letter = optionLetters[idx] || String.fromCharCode(65 + idx);
             const isSelected = selectedOption === option;
-            const isCorrect = option === currentQuestion.correctAnswer;
+            const isCorrect = evaluatingResult && option === currentQuestion.correctAnswer;
+            const isWrong = evaluatingResult && isSelected && !evaluatingResult.isCorrect;
 
-            let buttonClass = 'dark:bg-slate-900/85 bg-white/95 dark:border-slate-800 border-amber-600/20 hover:border-amber-500/60 dark:hover:bg-slate-850 hover:bg-amber-50/60 dark:text-slate-100 text-stone-900 shadow-sm';
+            let cardStyles = 'sacred-card border-amber-500/20 hover:border-amber-400/60 hover:bg-slate-900/80';
+            let badgeStyles = 'bg-slate-800/90 text-amber-300 border-slate-700';
 
             if (evaluatingResult) {
               if (isCorrect) {
-                buttonClass = 'dark:bg-emerald-950/90 bg-emerald-50 border-emerald-500 dark:border-emerald-400 dark:text-emerald-100 text-emerald-900 shadow-[0_0_20px_rgba(16,185,129,0.25)] ring-2 ring-emerald-400/50';
-              } else if (isSelected && !isCorrect) {
-                buttonClass = 'dark:bg-rose-950/90 bg-rose-50 border-rose-500 dark:text-rose-100 text-rose-900 ring-2 ring-rose-400/50';
+                cardStyles = 'bg-emerald-950/70 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] ring-1 ring-emerald-400/50';
+                badgeStyles = 'bg-emerald-500 text-slate-950 font-black';
+              } else if (isWrong) {
+                cardStyles = 'bg-rose-950/70 border-rose-500 shadow-[0_0_20px_rgba(244,63,94,0.3)] ring-1 ring-rose-500/50';
+                badgeStyles = 'bg-rose-500 text-white font-black';
               } else {
-                buttonClass = 'dark:bg-slate-950/40 bg-stone-100/60 dark:border-slate-850 border-stone-200 dark:text-slate-500 text-stone-400 opacity-50';
+                cardStyles = 'opacity-40 bg-slate-950/50 border-slate-800';
               }
             } else if (isSelected) {
-              buttonClass = 'dark:bg-amber-950/60 bg-amber-100 border-amber-500 text-amber-950 dark:text-white ring-2 ring-amber-400';
+              cardStyles = 'border-amber-400 bg-amber-500/15 shadow-[0_0_15px_rgba(245,158,11,0.25)]';
+              badgeStyles = 'bg-amber-400 text-slate-950 font-black';
             }
 
             return (
@@ -378,60 +365,76 @@ export const QuizGameView: React.FC<Props> = ({
                 key={option}
                 onClick={() => handleSelectOption(option)}
                 disabled={selectedOption !== null}
-                className={`group relative flex items-center min-h-[54px] sm:min-h-[60px] p-3.5 sm:p-4 rounded-xl sm:rounded-2xl border text-left font-medium transition-all sacred-card-interactive ${buttonClass} focus:outline-none focus:ring-2 focus:ring-amber-400/60 active:scale-[0.985]`}
-                aria-label={`Option ${letter}: ${option}`}
+                className={`w-full p-3.5 sm:p-4 rounded-2xl border text-left transition-all duration-150 flex items-center gap-3.5 group cursor-pointer ${cardStyles}`}
               >
-                {/* Letter Badge */}
-                <span className={`flex-shrink-0 w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center text-xs sm:text-sm font-black mr-3 transition-colors ${
-                  evaluatingResult && isCorrect
-                    ? 'bg-emerald-500 text-white dark:text-slate-950'
-                    : evaluatingResult && isSelected && !isCorrect
-                    ? 'bg-rose-500 text-white'
-                    : 'dark:bg-black/40 bg-amber-500/15 border dark:border-white/10 border-amber-500/30 text-amber-600 dark:text-amber-400 group-hover:border-amber-500/50'
-                }`}>
-                  {letter}
-                </span>
+                {/* Rounded Letter Badge [ A ], [ B ], [ C ], [ D ] */}
+                <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl border flex items-center justify-center font-mono font-black text-sm sm:text-base flex-shrink-0 transition-transform group-hover:scale-105 ${badgeStyles}`}>
+                  {isCorrect ? <Check size={18} strokeWidth={3} /> : isWrong ? <X size={18} strokeWidth={3} /> : letter}
+                </div>
 
                 {/* Option Text */}
-                <span className="flex-1 text-xs sm:text-sm md:text-base leading-snug font-medium">
+                <span className="font-sans font-semibold text-xs sm:text-sm text-slate-100 flex-1 leading-snug">
                   {option}
-                </span>
-
-                {/* Keyboard Shortcut Indicator on Desktop */}
-                <span className="hidden md:inline-block text-[11px] dark:text-slate-500 text-stone-400 group-hover:text-amber-500 ml-2 font-mono">
-                  [{idx + 1}]
                 </span>
               </button>
             );
           })}
         </div>
-      </main>
 
-      {/* 3. ANCHORED BOTTOM HINT (Permanently anchored at bottom) */}
-      <footer className="w-full dark:bg-slate-950/90 bg-white/95 backdrop-blur-md border-t dark:border-amber-500/15 border-amber-500/20 z-20 pb-[max(10px,var(--safe-area-bottom))] pt-2">
-        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+        {/* EXPANDABLE HINT DRAWER */}
+        <div className="sacred-card rounded-xl border border-amber-500/20 overflow-hidden">
           <button
             onClick={toggleHint}
-            className="w-full flex items-center justify-between py-2 px-3.5 rounded-xl dark:bg-slate-900/80 bg-amber-50/80 hover:dark:bg-slate-850 hover:bg-amber-100/80 border dark:border-slate-800 border-amber-500/30 dark:text-amber-300 text-amber-900 text-xs font-bold transition-all active:scale-[0.99]"
-            aria-expanded={isHintOpen}
+            className="w-full px-4 py-2.5 flex items-center justify-between text-xs font-bold text-slate-300 hover:text-amber-300 transition-colors"
           >
             <div className="flex items-center gap-2">
-              <Lightbulb size={16} className={`text-amber-500 ${isHintOpen ? 'animate-pulse' : ''}`} />
-              <span>{isHintOpen ? 'Hide Scripture Hint' : '💡 Reveal Scripture Reference Hint'}</span>
+              <Lightbulb size={14} className={isHintOpen ? 'text-amber-400' : 'text-slate-400'} />
+              <span>{isHintOpen ? 'Hide Scripture Clue' : 'Reveal Scripture Clue (Press H / Space)'}</span>
             </div>
-            {isHintOpen ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+            {isHintOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           </button>
-
           {isHintOpen && (
-            <div className="mt-2 p-3 rounded-xl dark:bg-amber-950/40 bg-amber-50 border border-amber-500/30 dark:text-amber-100 text-stone-800 text-xs leading-relaxed animate-in fade-in slide-in-from-bottom duration-150">
-              <p className="font-bold dark:text-amber-300 text-amber-800 mb-0.5">
-                📖 {currentQuestion.book} {currentQuestion.chapter}:{currentQuestion.verse}
-              </p>
-              <p className="dark:text-slate-300 text-stone-600 font-sans">{hintText}</p>
+            <div className="px-4 py-3 bg-amber-500/10 border-t border-amber-500/20 text-xs text-amber-200/90 leading-relaxed font-serif italic">
+              {getHintText(currentQuestion)}
             </div>
           )}
         </div>
-      </footer>
+
+        {/* BOTTOM ACTION BAR (Exit Challenge | Scripture Verse | Next Question) */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+          {/* Exit Challenge Button */}
+          <button
+            onClick={onExit}
+            className="px-4 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-rose-400 font-bold text-xs flex items-center gap-1.5 transition-colors"
+          >
+            <X size={14} />
+            <span>Exit Challenge</span>
+          </button>
+
+          {/* Scripture Verse at Bottom */}
+          <p className="hidden md:block text-xs font-serif italic text-slate-400 text-center flex-1 px-4">
+            "Hide Your word in my heart that I might not sin against You." &mdash; Psalm 119:11
+          </p>
+
+          {/* Next Question / Auto-advance Indicator */}
+          <button
+            onClick={() => {
+              if (selectedOption) {
+                // Already selected, user tapped Next Question
+              }
+            }}
+            className={`px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 transition-all ${
+              selectedOption
+                ? 'gold-button text-slate-950 shadow-md animate-pulse'
+                : 'bg-slate-800/60 text-slate-400 border border-slate-700/60'
+            }`}
+          >
+            <span>Next Question</span>
+            <ArrowRight size={14} />
+          </button>
+        </div>
+
+      </main>
     </div>
   );
 };

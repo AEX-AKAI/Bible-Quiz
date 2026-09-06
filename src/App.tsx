@@ -15,13 +15,15 @@ import { QuizGameView } from './features/quiz/QuizGameView';
 import { ResultsView } from './features/results/ResultsView';
 import { ReviewScriptureView } from './features/results/ReviewScriptureView';
 import { LeaderboardView } from './features/leaderboard/LeaderboardView';
+import { SettingsView } from './features/settings/SettingsView';
 import { SettingsDialog } from './features/settings/SettingsDialog';
 import { ProfileDialog } from './features/profile/ProfileDialog';
 
-type AppView = 'LOBBY' | 'QUIZ' | 'RESULTS' | 'LEADERBOARD' | 'REVIEW';
+type AppView = 'LOBBY' | 'QUIZ' | 'RESULTS' | 'LEADERBOARD' | 'REVIEW' | 'SETTINGS';
 
 export const App: React.FC = () => {
   const [view, setView] = useState<AppView>('LOBBY');
+  const [lobbyTab, setLobbyTab] = useState<'HOME' | 'CHALLENGES'>('HOME');
   const [activeConfig, setActiveConfig] = useState<ChallengeConfig | null>(null);
   const [activeQuestions, setActiveQuestions] = useState<Question[]>([]);
   const [lastResult, setLastResult] = useState<ChallengeResult | null>(null);
@@ -114,7 +116,9 @@ export const App: React.FC = () => {
         if (lastResult) setView('RESULTS');
         else setView('LOBBY');
       } else if (stateView === 'LEADERBOARD' || hash === '#leaderboard') {
-        setView('LEADERBOARD');
+        handleViewLeaderboard();
+      } else if (stateView === 'SETTINGS' || hash === '#settings') {
+        setView('SETTINGS');
       } else if (stateView === 'QUIZ' || hash === '#quiz') {
         if (activeConfig) setView('QUIZ');
         else setView('LOBBY');
@@ -176,6 +180,8 @@ export const App: React.FC = () => {
             setIsSettingsOpen(false);
           } else if (isProfileOpen) {
             setIsProfileOpen(false);
+          } else if (view === 'SETTINGS') {
+            navigateToView('LOBBY');
           } else if (view === 'REVIEW') {
             navigateToView('RESULTS');
           } else if (view === 'QUIZ') {
@@ -221,9 +227,10 @@ export const App: React.FC = () => {
           userProfile={userProfile}
           settings={settings}
           networkStatus={networkStatus}
+          initialTab={lobbyTab}
           onStartChallenge={handleStartChallenge}
           onViewLeaderboard={(config) => handleViewLeaderboard(config)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenSettings={() => navigateToView('SETTINGS')}
           onOpenProfile={() => setIsProfileOpen(true)}
         />
       )}
@@ -234,7 +241,10 @@ export const App: React.FC = () => {
           questions={activeQuestions}
           playerName={userProfile.displayName}
           onComplete={handleChallengeComplete}
-          onExit={() => setView('LOBBY')}
+          onExit={() => {
+            setLobbyTab('HOME');
+            navigateToView('LOBBY');
+          }}
           reduceAnimations={settings.reduceAnimations}
         />
       )}
@@ -248,11 +258,19 @@ export const App: React.FC = () => {
                 ...activeConfig,
                 challengeId: Math.random().toString(36).substring(2, 8).toUpperCase(),
               });
+            } else {
+              setLobbyTab('CHALLENGES');
+              navigateToView('LOBBY');
             }
           }}
           onViewLeaderboard={() => handleViewLeaderboard()}
-          onHome={() => navigateToView('LOBBY')}
+          onHome={() => {
+            setLobbyTab('HOME');
+            navigateToView('LOBBY');
+          }}
           onReviewScripture={() => navigateToView('REVIEW')}
+          onOpenSettings={() => navigateToView('SETTINGS')}
+          onOpenProfile={() => setIsProfileOpen(true)}
         />
       )}
 
@@ -266,20 +284,80 @@ export const App: React.FC = () => {
                 ...activeConfig,
                 challengeId: Math.random().toString(36).substring(2, 8).toUpperCase(),
               });
+            } else {
+              setLobbyTab('CHALLENGES');
+              navigateToView('LOBBY');
             }
           }}
+          onHome={() => {
+            setLobbyTab('HOME');
+            navigateToView('LOBBY');
+          }}
+          onNavigate={(tab) => {
+            if (tab === 'HOME') {
+              setLobbyTab('HOME');
+              navigateToView('LOBBY');
+            } else if (tab === 'CHALLENGES') {
+              setLobbyTab('CHALLENGES');
+              navigateToView('LOBBY');
+            } else if (tab === 'LEADERBOARD') {
+              handleViewLeaderboard();
+            } else if (tab === 'SETTINGS') {
+              navigateToView('SETTINGS');
+            }
+          }}
+          onOpenProfile={() => setIsProfileOpen(true)}
         />
       )}
 
-      {view === 'LEADERBOARD' && activeConfig && (
+      {view === 'LEADERBOARD' && (
         <LeaderboardView
-          entries={leaderboardEntries}
-          challengeId={activeConfig.challengeId}
+          entries={leaderboardEntries.length > 0 ? leaderboardEntries : OnlineChallengeService.getInstance().generateLobbyCompetitors({
+            challengeId: activeConfig?.challengeId || 'GRACE24',
+            seed: activeConfig?.seed || 'GRACE24',
+            timeLimitSeconds: activeConfig?.timeLimitSeconds || 180,
+            difficulty: 'MIXED',
+            isOnline: true,
+            totalQuestions: 35,
+          })}
+          challengeId={activeConfig?.challengeId || 'GRACE24'}
           onBack={() => navigateToView(lastResult ? 'RESULTS' : 'LOBBY')}
+          onNavigate={(tab) => {
+            if (tab === 'HOME') {
+              setLobbyTab('HOME');
+              navigateToView('LOBBY');
+            } else if (tab === 'CHALLENGES') {
+              setLobbyTab('CHALLENGES');
+              navigateToView('LOBBY');
+            } else if (tab === 'SETTINGS') {
+              navigateToView('SETTINGS');
+            }
+          }}
+          onOpenProfile={() => setIsProfileOpen(true)}
         />
       )}
 
-      {/* Settings Modal */}
+      {view === 'SETTINGS' && (
+        <SettingsView
+          settings={settings}
+          userProfile={userProfile}
+          onUpdateSettings={handleUpdateSettings}
+          onNavigate={(tab) => {
+            if (tab === 'HOME') {
+              setLobbyTab('HOME');
+              navigateToView('LOBBY');
+            } else if (tab === 'CHALLENGES') {
+              setLobbyTab('CHALLENGES');
+              navigateToView('LOBBY');
+            } else if (tab === 'LEADERBOARD') {
+              handleViewLeaderboard();
+            }
+          }}
+          onOpenProfile={() => setIsProfileOpen(true)}
+        />
+      )}
+
+      {/* Settings Modal (if opened via profile dialog or quick shortcuts) */}
       <SettingsDialog
         settings={settings}
         isOpen={isSettingsOpen}
@@ -297,4 +375,5 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
 export default App;
